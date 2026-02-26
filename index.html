@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#121212">
+    <meta name="description" content="Vibrato Digital v2.3 - Hinário Digital para Músicos">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Vibrato Digital">
+    
+    <!-- PWA MANIFEST (Data URI for Single File Support) -->
+    <link rel="manifest" href='data:application/manifest+json,{"name":"Vibrato Digital","short_name":"Vibrato","start_url":".","display":"standalone","background_color":"#121212","theme_color":"#121212","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/2907/2907253.png","sizes":"512x512","type":"image/png"}]}' />
+
+    <title>Vibrato Digital v2.3</title>
+
+    <!-- FONTS -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Lexend:wght@300;400;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" />
+
+    <!-- LIBS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { 
+                        sans: ['Inter', 'sans-serif'], 
+                        display: ['Lexend', 'sans-serif'], 
+                        sacred: ['Playfair Display', 'serif'] 
+                    },
+                    colors: {
+                        theme: 'var(--bg-color)',
+                        card: 'var(--card-bg)',
+                        accent: 'var(--accent-color)',
+                        text: 'var(--text-primary)',
+                        muted: 'var(--text-secondary)'
+                    },
+                    boxShadow: { 
+                        'neon': '0 0 10px var(--accent-color)',
+                        'glow': '0 0 20px var(--glow-color)',
+                        'intense': '0 0 30px var(--accent-color)'
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'spin-slow': 'spin 3s linear infinite',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root {
+            /* POINT_ULTRA_SECURE: Carbon Glow + Sunset Orange */
+            --bg-color: #121212;
+            --card-bg: #1E1E1E;
+            --accent-color: #FF8C42; 
+            --glow-color: rgba(255, 140, 66, 0.2);
+            --text-primary: #FFFFFF;
+            --text-secondary: #A0AEC0;
+        }
+
+        body { 
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            transition: background-color 0.5s ease, color 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        /* SCROLLBAR & UTILS */
+        ::-webkit-scrollbar { width: 4px; display: none; }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .icon-glow { filter: drop-shadow(0 0 5px var(--accent-color)); }
+        
+        .hymn-verse { margin-bottom: 2rem; line-height: 1.8; white-space: pre-line; letter-spacing: 0.01em; }
+        
+        .chorus-block { 
+            border-left: 3px solid var(--accent-color); 
+            padding-left: 1.5rem; 
+            font-style: italic; 
+            background: linear-gradient(90deg, var(--glow-color) 0%, transparent 100%);
+            white-space: pre-line;
+            margin: 2rem 0;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+            border-radius: 0 12px 12px 0;
+        }
+
+        .golden-glow {
+            text-shadow: 0 0 10px #FFD700, 0 0 20px #FF8C42;
+            animation: goldenPulse 3s infinite;
+        }
+
+        @keyframes goldenPulse {
+            0% { text-shadow: 0 0 10px #FFD700; opacity: 1; }
+            50% { text-shadow: 0 0 20px #FFA500; opacity: 0.9; }
+            100% { text-shadow: 0 0 10px #FFD700; opacity: 1; }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+            100% { transform: translateY(0px); }
+        }
+        .animate-float { animation: float 6s ease-in-out infinite; }
+
+        @keyframes marquee {
+            0% { transform: translateX(0%); }
+            100% { transform: translateX(-100%); }
+        }
+        .animate-marquee {
+            display: inline-block;
+            animation: marquee 8s linear infinite;
+            padding-left: 100%; /* Start from right */
+        }
+    </style>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useContext, createContext, useMemo } = React;
+        const { motion, AnimatePresence } = window.Motion;
+
+        // --- 1. CONFIGURAÇÃO DE TEMAS ---
+        const THEMES = [
+            { id: 'carbon', name: 'Carbon Glow', bg: '#121212', card: '#1E1E1E', accent: '#FF8C42', text: '#FFFFFF', glow: 'rgba(255, 140, 66, 0.2)' },
+            { id: 'sunset', name: 'Sunset Soul', bg: '#2D1B2E', card: '#462540', accent: '#FF9A8B', text: '#FFF0F5', glow: 'rgba(255, 154, 139, 0.3)' },
+            { id: 'wine', name: 'Royal Wine', bg: '#2C0202', card: '#4A0404', accent: '#FFD700', text: '#FFFDD0', glow: 'rgba(255, 215, 0, 0.2)' },
+            { id: 'ocean', name: 'Deep Ocean', bg: '#001E3C', card: '#0A1929', accent: '#00E5FF', text: '#E3F2FD', glow: 'rgba(0, 229, 255, 0.2)' },
+            { id: 'nature', name: 'Forest Zen', bg: '#0F2015', card: '#193222', accent: '#4ADE80', text: '#F0FDF4', glow: 'rgba(74, 222, 128, 0.2)' }
+        ];
+
+        // --- 2. BANCO DE DADOS (121-160) ---
+        const rawHymnsJSON = [
+            { "id": "121", "titulo": "O meu socorro vem do Senhor", "categoria": "Súplica", "tonalidade": "Am", "estrofes": ["1. O meu socorro vem do Senhor,\nQue fez o céu e a terra;\nEle é o meu fiel Guardador,\nQue me livra da guerra."], "glow": false },
+            { "id": "122", "titulo": "Alegrei-me", "categoria": "Alegria", "tonalidade": "G", "estrofes": ["1. Alegrei-me quando me disseram:\nVamos à casa do Senhor;\nNossos pés pararam às tuas portas,\nÓ Jerusalém, cidade de amor."], "glow": true },
+            { "id": "123", "titulo": "Ó Jesus, és meu Guardião", "categoria": "Confiança", "tonalidade": "D", "estrofes": ["1. Ó Jesus, és meu Guardião,\nEm Ti confio de coração;\nTu me livras da tentação,\nE me dás a salvação."], "glow": false },
+            { "id": "124", "titulo": "Vivo na graça", "categoria": "Gratidão", "tonalidade": "C", "estrofes": ["1. Vivo na graça do meu Senhor,\nQue me salvou com imenso amor;\nEle me deu um novo vigor,\nE me fez um vencedor."], "glow": false },
+            { "id": "125", "titulo": "Mais grato a Ti", "categoria": "Súplica", "tonalidade": "F", "estrofes": ["1. Mais grato a Ti, Senhor, eu quero ser,\nPor tudo o que tens feito em meu viver;\nA Tua graça me faz vencer,\nE o Teu amor me faz crescer."], "glow": false },
+            { "id": "126", "titulo": "Levemos a mensagem de amor", "categoria": "Evangelho", "tonalidade": "G", "estrofes": ["1. Levemos a mensagem de amor,\nDo nosso grande e bom Salvador;\nPara que o mundo conheça o Senhor,\nE se renda ao Seu amor."], "glow": false },
+            { "id": "127", "titulo": "Meu bom Jesus, Contigo almejo estar", "categoria": "Adoração", "tonalidade": "E", "estrofes": ["1. Meu bom Jesus, Contigo almejo estar,\nE a Tua face contemplar;\nNo céu de luz eu quero morar,\nE para sempre Te adorar."], "glow": true },
+            { "id": "128", "titulo": "Teu filho sou, ó Criador", "categoria": "Fé", "tonalidade": "A", "estrofes": ["1. Teu filho sou, ó Criador,\nResgatado pelo Redentor;\nSinto em mim o Teu amor,\nE o Teu santo e real valor."], "glow": false },
+            { "id": "129", "titulo": "Salvo estou por Jesus", "categoria": "Salvação", "tonalidade": "D", "estrofes": ["1. Salvo estou por Jesus, meu Senhor,\nQue me livrou com Seu grande amor;\nEle é o meu fiel Pastor,\nE o meu eterno Salvador."], "glow": false },
+            { "id": "130", "titulo": "A minha alma", "categoria": "Louvor", "tonalidade": "C", "estrofes": ["1. A minha alma engrandece ao Senhor,\nE o meu espírito se alegra em Deus;\nPois Ele olhou para o meu clamor,\nE me atendeu lá dos altos céus."], "glow": false },
+            { "id": "131", "titulo": "Ó Senhor glorioso, Deus da perfeição", "categoria": "Adoração", "tonalidade": "G", "estrofes": ["1. Ó Senhor glorioso, Deus da perfeição,\nOuve a nossa prece, dá-nos comunhão;\nNós estamos juntos para Te adorar,\nTeu amor imenso vem nos revelar."], "coro": "Glória, glória, aleluia!\nGlória a Deus, o Criador!\nGlória, glória, aleluia!\nGlória a Cristo, o Salvador!", "glow": true },
+            { "id": "132", "titulo": "Eis-me aqui, Senhor", "categoria": "Entrega", "tonalidade": "F", "estrofes": ["1. Eis-me aqui, Senhor, para Te servir,\nE a Tua voz sempre ouvir;\nQuero os Teus passos aqui seguir,\nE no Teu reino no céu subir."], "glow": false },
+            { "id": "133", "titulo": "No céu, Senhor", "categoria": "Esperança", "tonalidade": "Am", "estrofes": ["1. No céu, Senhor, eu quero estar,\nE a Tua glória contemplar;\nCom os anjos vou Te louvar,\nE o Teu Nome exaltar."], "glow": false },
+            { "id": "134", "titulo": "Teu amor, ó Cordeiro divinal", "categoria": "Amor de Deus", "tonalidade": "D", "estrofes": ["1. Teu amor, ó Cordeiro divinal,\nÉ sublime e sem igual;\nNos livraste de todo o mal,\nPara a vida celestial."], "glow": false },
+            { "id": "135", "titulo": "Bendito o Rei que veio do céu!", "categoria": "Adoração", "tonalidade": "G", "estrofes": ["1. Bendito o Rei que veio do céu,\nJesus Cristo, o Emanuel;\nEle rasgou o santo véu,\nE nos levou ao Deus fiel."], "glow": true },
+            { "id": "136", "titulo": "Benignidade eterna é a de Deus", "categoria": "Louvor", "tonalidade": "C", "estrofes": ["1. Benignidade eterna é a de Deus,\nQue nos mandou Jesus dos céus;\nPara salvar os filhos Seus,\nE nos fazer herdeiros de Deus."], "glow": false },
+            { "id": "137", "titulo": "Senhor, vem guia-me", "categoria": "Oração", "tonalidade": "F", "estrofes": ["1. Senhor, vem guia-me na Tua luz,\nPois só Tu és quem me conduzes;\nPara o caminho que ao céu seduz,\nOnde a Tua glória reluz."], "glow": false },
+            { "id": "138", "titulo": "Louvemos ao bom Jesus", "categoria": "Louvor", "tonalidade": "G", "estrofes": ["1. Louvemos ao bom Jesus, o Senhor,\nCom alegria e com fervor;\nEle é o nosso Redentor,\nE o nosso eterno Salvador."], "glow": false },
+            { "id": "139", "titulo": "Ó Senhor, Tu me conheces", "categoria": "Salmos", "tonalidade": "Em", "estrofes": ["1. Ó Senhor, Tu me conheces e sabes,\nO meu pensar e o meu agir;\nPara onde irei do Teu Espírito?\nPara onde fugirei da Tua face?"], "glow": false },
+            { "id": "140", "titulo": "Sou feliz", "categoria": "Adoração", "tonalidade": "D", "estrofes": ["1. Sou feliz, pois Cristo me salvou,\nE com Seu sangue me lavou;\nO meu pecado Ele perdoou,\nE para o céu me convidou."], "glow": true },
+            { "id": "141", "titulo": "Cristo, o Verbo", "categoria": "Doutrina", "tonalidade": "C", "estrofes": ["1. Cristo, o Verbo, se fez carne,\nE habitou entre nós;\nVimos a Sua glória,\nGlória do Unigênito do Pai."], "glow": false },
+            { "id": "142", "titulo": "Ó Pai celestial", "categoria": "Oração", "tonalidade": "F", "estrofes": ["1. Ó Pai celestial, nós Te rogamos,\nCom humildade e devoção;\nO Teu Espírito nós esperamos,\nPara nos dar a consolação."], "glow": false },
+            { "id": "143", "titulo": "Por Ti, Jesus", "categoria": "Adoração", "tonalidade": "G", "estrofes": ["1. Por Ti, Jesus, eu quero viver,\nE o Teu Nome engrandecer;\nA Tua vontade eu quero fazer,\nE a Tua glória receber."], "glow": false },
+            { "id": "144", "titulo": "A vida eterna", "categoria": "Promessa", "tonalidade": "D", "estrofes": ["1. A vida eterna Deus prometeu,\nA todo aquele que n'Ele creu;\nJesus Cristo na cruz morreu,\nE a vitória nos concedeu."], "glow": false },
+            { "id": "145", "titulo": "Pródigo filho, vai!", "categoria": "Apelo", "tonalidade": "G", "estrofes": ["1. Pródigo filho, vai ao teu Pai,\nEle te espera com compaixão;\nO Seu amor nunca se esvai,\nEle te dá o Seu perdão."], "glow": false },
+            { "id": "146", "titulo": "Aos Teus pés", "categoria": "Humildade", "tonalidade": "Am", "estrofes": ["1. Aos Teus pés, Senhor, eu me prosto,\nCom o coração contrito;\nO Teu perdão é o que eu gosto,\nPois Tu és o Deus bendito."], "glow": false },
+            { "id": "147", "titulo": "É bom louvar ao Criador", "categoria": "Louvor", "tonalidade": "C", "estrofes": ["1. É bom louvar ao Criador,\nE cantar hinos de amor;\nPois Ele é o nosso Senhor,\nE o nosso grande Benfeitor."], "glow": false },
+            { "id": "148", "titulo": "Louvor a Deus, o Criador", "categoria": "Louvor", "tonalidade": "G", "estrofes": ["1. Louvor a Deus, o Criador,\nQue nos formou com Seu amor;\nEle é o nosso Protetor,\nE o nosso eterno Salvador."], "glow": false },
+            { "id": "149", "titulo": "Ó irmãos, por fé, louvemos a Jesus", "categoria": "Fé", "tonalidade": "D", "estrofes": ["1. Ó irmãos, por fé, louvemos a Jesus,\nQue nos trouxe a divina luz;\nEle morreu na amarga cruz,\nE ao céu de glória nos conduz."], "glow": false },
+            { "id": "150", "titulo": "Vem, ó Senhor, ajudar", "categoria": "Jovens", "tonalidade": "F", "estrofes": ["1. Vem, ó Senhor, ajudar o Teu povo,\nNeste mundo de tanta dor;\nDá-nos um coração novo,\nCheio de fé e de amor."], "glow": true },
+            { "id": "151", "titulo": "Se, de Cristo, o Nome amares", "categoria": "Exortação", "tonalidade": "G", "estrofes": ["1. Se, de Cristo, o Nome amares,\nE a Sua lei guardares;\nNo céu tu entrarás,\nE a coroa ganharás."], "glow": false },
+            { "id": "152", "titulo": "Venho à casa do Senhor", "categoria": "Culto", "tonalidade": "C", "estrofes": ["1. Venho à casa do Senhor,\nPara O adorar com amor;\nEle é o meu Pastor,\nE o meu grande Salvador."], "glow": false },
+            { "id": "153", "titulo": "O divinal Cordeiro", "categoria": "Santa Ceia", "tonalidade": "F", "estrofes": ["1. O divinal Cordeiro,\nQue Deus enviou do céu;\nÉ o nosso Companheiro,\nE o nosso Deus fiel."], "glow": false },
+            { "id": "154", "titulo": "Terá que renascer", "categoria": "Doutrina", "tonalidade": "G", "estrofes": ["1. Terá que renascer da água e do Espírito,\nQuem no reino de Deus quiser entrar;\nAssim disse Jesus, o Mestre bendito,\nPara a vida eterna alcançar."], "glow": false },
+            { "id": "155", "titulo": "Olha a Cristo, o Redentor", "categoria": "Jovens", "tonalidade": "D", "estrofes": ["1. Olha a Cristo, o Redentor,\nQue te chama com amor;\nVem a Ele, pecador,\nE terás o Salvador."], "glow": true },
+            { "id": "156", "titulo": "Cristo entrou nos céus primeiro", "categoria": "Esperança", "tonalidade": "Am", "estrofes": ["1. Cristo entrou nos céus primeiro,\nPara o lugar preparar;\nEle é o nosso Companheiro,\nQue em breve vai voltar."], "glow": false },
+            { "id": "157", "titulo": "O Senhor é a minha Luz", "categoria": "Confiança", "tonalidade": "G", "estrofes": ["1. O Senhor é a minha Luz e Salvação,\nA quem temerei?\nO Senhor é a força da minha vida,\nDe quem me recearei?"], "glow": false },
+            { "id": "158", "titulo": "Tu és o Oleiro", "categoria": "Humildade", "tonalidade": "C", "estrofes": ["1. Tu és o Oleiro, Senhor,\nE eu sou o barro em Tuas mãos;\nFaz de mim um vaso de valor,\nPara servir aos meus irmãos."], "glow": false },
+            { "id": "159", "titulo": "Deus amou o mundo", "categoria": "Amor de Deus", "tonalidade": "F", "estrofes": ["1. Deus amou o mundo de tal maneira,\nQue deu Seu Filho unigênito;\nPara que todo aquele que n'Ele crê,\nNão pereça, mas tenha a vida eterna."], "glow": false },
+            { "id": "160", "titulo": "Sou crente em Jesus", "categoria": "Testemunho", "tonalidade": "G", "estrofes": ["1. Sou crente em Jesus, meu Senhor,\nEsigo com fé e amor;\nEle é o meu bom Pastor,\nE o meu grande Salvador."], "glow": false }
+        ];
+
+        const corinhosData = [
+            { id: "C1", title: "Glória! Aleluia!", category: "Corinho", key: "Dó Maior", verses: ["Sinto o amor de Deus neste lugar,\nSinto o amor de Deus neste lugar."], chorus: "Glória! Aleluia! Sinto o amor de Deus." },
+            { id: "C2", title: "Cristo Jesus é meu Salvador", category: "Corinho", key: "Sol Maior", verses: ["Cristo Jesus é o meu Salvador,\nEle me amou e por mim expirou."], chorus: "" },
+            { id: "C3", title: "Caminhando eu vou", category: "Corinho", key: "Ré Maior", verses: ["Caminhando eu vou para o céu,\nCaminhando eu vou para o céu."], chorus: "Glória a Deus! Caminhando eu vou para o céu!" },
+            { id: "C4", title: "O Senhor é meu Pastor", category: "Corinho", key: "Fá Maior", verses: ["O Senhor é o meu Pastor, nada me faltará."], chorus: "" },
+            { id: "C5", title: "Quão bom e quão suave é", category: "Corinho", key: "Lá Maior", verses: ["Quão bom e quão suave é,\nQue os irmãos vivam em união."], chorus: "" },
+            { id: "C6", title: "Vem com Josué", category: "Corinho", key: "Mi Menor", verses: ["Vem com Josué lutar em Jericó,\nJericó, Jericó!"], chorus: "" }
+        ];
+
+        const normalizedHymns = rawHymnsJSON.map(h => ({
+            id: parseInt(h.id),
+            title: h.titulo,
+            category: h.categoria,
+            key: h.tonalidade,
+            verses: h.estrofes,
+            chorus: h.coro || null,
+            glow: h.glow,
+            duration: `${Math.floor(Math.random() * 3) + 2}:${Math.floor(Math.random() * 60).toString().padStart(2, '0')}` // Simulação de duração
+        }));
+
+        const hymnalData = [...normalizedHymns, ...corinhosData];
+
+        const CATEGORY_MAP = {
+            'Culto Oficial': ['Culto', 'Louvor', 'Adoração', 'Súplica', 'Alegria', 'Confiança', 'Gratidão', 'Fé', 'Salvação', 'Entrega', 'Esperança', 'Amor de Deus', 'Oração', 'Salmos', 'Doutrina', 'Promessa', 'Apelo', 'Humildade', 'Exortação', 'Testemunho', 'Evangelho'],
+            'RJM & Menores': ['Jovens', 'RJM'],
+            'Batismo': ['Batismo'],
+            'Santa Ceia': ['Santa Ceia'],
+            'Ensaios': ['Ensaios'],
+            'Funeral': ['Funeral']
+        };
+
+        const CATEGORY_CONFIG = [
+            { id: 'Culto Oficial', icon: 'church', verses: ["Alegrei-me quando me disseram: Vamos à casa do Senhor.", "Adorai o Senhor na beleza da sua santidade.", "Lâmpada para os meus pés é a tua palavra."] },
+            { id: 'RJM & Menores', icon: 'diversity_3', verses: ["Lembra-te do teu Criador na mocidade.", "Ninguém despreze a tua mocidade.", "Instrui o menino no caminho em que deve andar."] },
+            { id: 'Batismo', icon: 'water_drop', verses: ["Quem crer e for batizado será salvo.", "Sepultados com Ele no batismo.", "Uma só fé, um só Senhor, um só batismo."] },
+            { id: 'Santa Ceia', icon: 'local_bar', verses: ["Fazei isto em memória de mim.", "Este cálice é a nova aliança.", "Examine-se, pois, o homem a si mesmo."] },
+        ];
+
+        // --- 4. CONTEXT & PROVIDER ---
+        const AppContext = createContext();
+
+        const AppProvider = ({ children }) => {
+            const [screen, setScreen] = useState('welcome');
+            const [activeHymn, setActiveHymn] = useState(null);
+            const [filterCategory, setFilterCategory] = useState(null); // Default to ALL hymns
+            const [favorites, setFavorites] = useState([]);
+            
+            const [currentThemeId, setCurrentThemeId] = useState('carbon');
+            const [fontSize, setFontSize] = useState(22);
+            const [termsAccepted, setTermsAccepted] = useState(() => localStorage.getItem('termos_aceitos') === 'true');
+
+            // Player State
+            const [playerState, setPlayerState] = useState({ isPlaying: false, hymn: null });
+
+            // PWA Logic
+            const [deferredPrompt, setDeferredPrompt] = useState(null);
+            useEffect(() => {
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    e.preventDefault();
+                    setDeferredPrompt(e);
+                });
+            }, []);
+
+            const installApp = () => {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    deferredPrompt.userChoice.then((choiceResult) => {
+                        if (choiceResult.outcome === 'accepted') {
+                            setDeferredPrompt(null);
+                        }
+                    });
+                } else {
+                    alert("Para instalar: Toque em Compartilhar (iOS) ou Menu (Android) e escolha 'Adicionar à Tela de Início'.");
+                }
+            };
+
+            // Profile State - DEFAULT EMPTY
+            const [userProfile, setUserProfile] = useState({
+                name: '',
+                role: 'Músico',
+                instrument: 'Violino',
+                bio: '',
+                email: '', 
+                isLoggedIn: false
+            });
+
+            useEffect(() => {
+                const savedProfile = localStorage.getItem('vibrato_profile_v32');
+                const savedSettings = localStorage.getItem('vibrato_settings_v32');
+                const savedFavs = localStorage.getItem('vibrato_favorites_v32');
+
+                if (savedProfile) {
+                    const parsed = JSON.parse(savedProfile);
+                    setUserProfile(prev => ({...prev, ...parsed})); // Merge with defaults
+                    if(parsed.isLoggedIn) setScreen('home');
+                }
+                if (savedSettings) {
+                    const parsed = JSON.parse(savedSettings);
+                    setCurrentThemeId(parsed.theme || 'carbon');
+                    setFontSize(parsed.fontSize || 22);
+                }
+                if (savedFavs) {
+                    setFavorites(JSON.parse(savedFavs));
+                }
+            }, []);
+
+            useEffect(() => {
+                localStorage.setItem('vibrato_profile_v32', JSON.stringify(userProfile));
+            }, [userProfile]);
+
+            useEffect(() => {
+                localStorage.setItem('vibrato_settings_v32', JSON.stringify({ theme: currentThemeId, fontSize }));
+                const theme = THEMES.find(t => t.id === currentThemeId) || THEMES[0];
+                const root = document.documentElement;
+                root.style.setProperty('--bg-color', theme.bg);
+                root.style.setProperty('--card-bg', theme.card);
+                root.style.setProperty('--accent-color', theme.accent);
+                root.style.setProperty('--text-primary', theme.text);
+                root.style.setProperty('--glow-color', theme.glow);
+            }, [currentThemeId, fontSize]);
+
+            useEffect(() => {
+                localStorage.setItem('vibrato_favorites_v32', JSON.stringify(favorites));
+            }, [favorites]);
+
+            const acceptTerms = () => {
+                setTermsAccepted(true);
+                localStorage.setItem('termos_aceitos', 'true');
+            };
+
+            const login = (name, role, instrument) => {
+                setUserProfile(prev => ({ ...prev, name, role, instrument, isLoggedIn: true }));
+                setScreen('home');
+            };
+
+            const navigate = (to, data = null) => {
+                if (data) setActiveHymn(data);
+                setScreen(to);
+            };
+
+            const toggleFavorite = (id) => {
+                setFavorites(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+            };
+
+            const playHymn = (hymn) => {
+                setPlayerState({ isPlaying: true, hymn });
+            };
+
+            const togglePlay = () => {
+                setPlayerState(prev => ({ ...prev, isPlaying: !prev.isPlaying }));
+            };
+
+            const closePlayer = () => {
+                setPlayerState({ isPlaying: false, hymn: null });
+            };
+
+            const resetData = () => {
+                if(confirm("Deseja resetar todas as configurações e dados locais?")) {
+                    localStorage.removeItem('vibrato_profile_v32');
+                    localStorage.removeItem('vibrato_settings_v32');
+                    localStorage.removeItem('vibrato_favorites_v32');
+                    localStorage.removeItem('termos_aceitos');
+                    window.location.reload();
+                }
+            };
+
+            const updateProfile = (key, value) => {
+                setUserProfile(prev => ({ ...prev, [key]: value }));
+            };
+
+            return (
+                <AppContext.Provider value={{ 
+                    screen, navigate, 
+                    activeHymn, setActiveHymn, 
+                    filterCategory, setFilterCategory, 
+                    favorites, toggleFavorite,
+                    currentThemeId, setCurrentThemeId,
+                    fontSize, setFontSize,
+                    userProfile, login, updateProfile,
+                    resetData, termsAccepted, acceptTerms, installApp,
+                    playerState, playHymn, togglePlay, closePlayer
+                }}>
+                    {children}
+                </AppContext.Provider>
+            );
+        };
+
+        // --- 5. COMPONENTS ---
+
+        const TermsModal = ({ onClose, isMandatory = false }) => (
+            <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex items-center justify-center p-6">
+                <motion.div 
+                    initial={{scale:0.9, opacity:0}} 
+                    animate={{scale:1, opacity:1}} 
+                    className="bg-white/5 backdrop-blur-xl border border-white/20 p-8 rounded-[32px] max-w-sm w-full shadow-2xl relative overflow-hidden"
+                >
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[var(--accent-color)] to-purple-600"></div>
+                    <h3 className="text-2xl font-display font-bold text-white mb-6 text-center">Termos de Uso e Isenção de Responsabilidade</h3>
+                    <div className="space-y-4 text-xs text-gray-300 mb-8 leading-relaxed font-light text-justify">
+                        <p><strong>FINALIDADE:</strong> O Vibrato Digital é um projeto acadêmico e independente de Natan Dias Corrêa para estudo de ADS e música. Não possui fins lucrativos.</p>
+                        <p><strong>ISENÇÃO:</strong> O Vibrato Digital é uma ferramenta independente e NÃO possui vínculo oficial, administrativo ou jurídico com a Congregação Cristã no Brasil ou suas editoras.</p>
+                        <p><strong>DIREITOS:</strong> As letras e melodias dos hinos são de propriedade de seus respectivos detentores de direitos autorais. Este app funciona apenas como um indexador de estudo pessoal.</p>
+                        <p><strong>PRIVACIDADE (LGPD):</strong> Em conformidade com a Lei Geral de Proteção de Dados, informamos que TODOS os seus dados (preferências e perfil) são armazenados localmente no seu dispositivo (LocalStorage). Nenhum dado é coletado ou enviado para servidores externos.</p>
+                    </div>
+                    <button 
+                        onClick={onClose} 
+                        className={`w-full py-4 font-bold rounded-xl shadow-lg hover:scale-[1.02] active:scale-95 transition-all ${isMandatory 
+                            ? "bg-gradient-to-r from-[var(--accent-color)] to-purple-600 text-white border-0" 
+                            : "bg-transparent text-white border border-white/20 hover:bg-white/10"}`}
+                    >
+                        {isMandatory ? "LI, COMPREENDO E ACEITO" : "FECHAR"}
+                    </button>
+                    <p className="text-[10px] text-center mt-4 opacity-40 text-white">Vibrato Digital • Compliance & Security</p>
+                </motion.div>
+            </div>
+        );
+
+        const MiniPlayer = () => {
+            const { playerState, togglePlay, navigate, playHymn, closePlayer } = useContext(AppContext);
+            const [currentTime, setCurrentTime] = useState(0);
+            const [totalTime, setTotalTime] = useState(0);
+            const [isLooping, setIsLooping] = useState(false);
+
+            useEffect(() => {
+                if (playerState.hymn) {
+                    setCurrentTime(0);
+                    const parts = playerState.hymn.duration.split(':');
+                    const seconds = parseInt(parts[0]) * 60 + parseInt(parts[1]);
+                    setTotalTime(seconds);
+                }
+            }, [playerState.hymn]);
+
+            useEffect(() => {
+                let interval;
+                if (playerState.isPlaying && totalTime > 0) {
+                    interval = setInterval(() => {
+                        setCurrentTime(prev => {
+                            if (prev >= totalTime) {
+                                if (isLooping) return 0;
+                                togglePlay();
+                                return prev;
+                            }
+                            return prev + 1;
+                        });
+                    }, 1000);
+                }
+                return () => clearInterval(interval);
+            }, [playerState.isPlaying, totalTime, isLooping, togglePlay]);
+
+            if (!playerState.hymn) return null;
+
+            const formatTime = (s) => {
+                const m = Math.floor(s / 60);
+                const sec = s % 60;
+                return `${m}:${sec.toString().padStart(2, '0')}`;
+            };
+
+            const handleShuffle = (e) => {
+                e.stopPropagation();
+                const randomIdx = Math.floor(Math.random() * hymnalData.length);
+                const randomHymn = hymnalData[randomIdx];
+                playHymn(randomHymn);
+                navigate('reader', randomHymn);
+            };
+
+            const handlePrev = (e) => {
+                e.stopPropagation();
+                setCurrentTime(0); // Restart for now
+            };
+
+            const handleNext = (e) => {
+                e.stopPropagation();
+                handleShuffle(e); // Next acts as shuffle for demo
+            };
+
+            const toggleLoop = (e) => {
+                e.stopPropagation();
+                setIsLooping(!isLooping);
+            };
+
+            const progressPercent = totalTime > 0 ? (currentTime / totalTime) * 100 : 0;
+
+            return (
+                <div 
+                    onClick={() => navigate('reader', playerState.hymn)}
+                    className="fixed bottom-[90px] left-4 right-4 bg-[#1E1E1E]/90 backdrop-blur-xl border border-white/10 rounded-[32px] p-4 shadow-[0_8px_32px_rgba(0,0,0,0.6)] z-40 flex flex-col gap-3 overflow-hidden group cursor-pointer"
+                >
+                    {/* Close Button (Absolute Top Right) */}
+                    <button onClick={(e) => { e.stopPropagation(); closePlayer(); }} className="absolute top-3 right-3 text-white/50 hover:text-white z-50 p-1 rounded-full hover:bg-white/10 transition-colors">
+                        <span className="material-symbols-rounded text-lg">close</span>
+                    </button>
+
+                    {/* Shuffle Button (Moved to Top Left) */}
+                    <button onClick={handleShuffle} className="absolute top-3 left-3 text-white/30 hover:text-[var(--accent-color)] transition-colors active:scale-90 z-20">
+                        <span className="material-symbols-rounded text-lg">shuffle</span>
+                    </button>
+
+                    <div className="flex items-center gap-4 relative z-10 mt-4">
+                        {/* Rotating Disk */}
+                        <div className={`w-16 h-16 rounded-full bg-black border-[3px] border-[#121212] flex items-center justify-center relative shrink-0 shadow-lg ${playerState.isPlaying ? 'animate-spin-slow' : ''}`} style={{animationDuration: '3s'}}>
+                            <div className="w-full h-full rounded-full bg-gradient-to-tr from-[var(--accent-color)] to-purple-600 opacity-80" style={{background: `conic-gradient(from 0deg, var(--accent-color), purple, var(--accent-color))`}}></div>
+                            <div className="absolute w-5 h-5 bg-[#1E1E1E] rounded-full z-10 border border-white/20"></div>
+                            {/* Stylized Glint */}
+                            <div className="absolute w-full h-full rounded-full bg-gradient-to-tr from-white/20 to-transparent opacity-50 pointer-events-none"></div>
+                        </div>
+
+                        {/* Info */}
+                        <div className="flex-1 min-w-0 pr-8">
+                            <div className="relative h-6 overflow-hidden w-full">
+                                <div className={`whitespace-nowrap ${playerState.hymn.title.length > 20 ? 'animate-marquee' : ''}`}>
+                                    <span className="text-sm font-bold text-white mr-4">{playerState.hymn.title}</span>
+                                    {playerState.hymn.title.length > 20 && <span className="text-sm font-bold text-white">{playerState.hymn.title}</span>}
+                                </div>
+                            </div>
+                            <p className="text-[10px] text-white/50 mb-1">{playerState.hymn.id} • {playerState.hymn.category}</p>
+                            
+                            {/* Time & Progress */}
+                            <div className="flex items-center gap-2">
+                                <span className="text-[9px] text-[var(--accent-color)] font-mono w-8">{formatTime(currentTime)}</span>
+                                <div className="h-1 bg-white/10 rounded-full flex-1 overflow-hidden">
+                                    <div className="h-full bg-[var(--accent-color)] transition-all duration-1000 ease-linear" style={{width: `${progressPercent}%`}}></div>
+                                </div>
+                                <span className="text-[9px] text-white/30 font-mono w-8 text-right">{formatTime(totalTime)}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Controls Row */}
+                    <div className="flex justify-between items-center px-2 mt-[-5px]">
+                        <button onClick={toggleLoop} className={`${isLooping ? 'text-[var(--accent-color)]' : 'text-white/20'} transition-colors active:scale-90`}>
+                            <span className="material-symbols-rounded text-lg">repeat</span>
+                        </button>
+
+                        <div className="flex items-center gap-4">
+                             <button onClick={handlePrev} className="text-white/80 hover:text-white transition-colors active:scale-90">
+                                <span className="material-symbols-rounded text-3xl">skip_previous</span>
+                            </button>
+                            
+                            <button onClick={(e) => { e.stopPropagation(); togglePlay(); }} className="w-12 h-12 rounded-full bg-gradient-to-r from-[var(--accent-color)] to-[#FF4D4D] text-white flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-transform">
+                                <span className="material-symbols-rounded text-2xl font-bold">{playerState.isPlaying ? 'pause' : 'play_arrow'}</span>
+                            </button>
+                            
+                             <button onClick={handleNext} className="text-white/80 hover:text-white transition-colors active:scale-90">
+                                <span className="material-symbols-rounded text-3xl">skip_next</span>
+                            </button>
+                        </div>
+                        
+                        <div className="w-6"></div> {/* Spacer balance */}
+                    </div>
+                </div>
+            );
+        };
+
+        const PlaylistCard = ({ config, isSelected, onClick }) => {
+            const [verseIndex, setVerseIndex] = useState(0);
+
+            useEffect(() => {
+                const interval = setInterval(() => {
+                    setVerseIndex(prev => (prev + 1) % config.verses.length);
+                }, 4000);
+                return () => clearInterval(interval);
+            }, [config]);
+
+            return (
+                <button 
+                    onClick={onClick}
+                    className={`relative w-full aspect-[4/3] p-4 rounded-2xl border flex flex-col justify-between text-left overflow-hidden transition-all duration-300 ${isSelected ? 'border-[var(--accent-color)] bg-gradient-to-br from-[var(--accent-color)]/20 to-transparent' : 'border-white/5 bg-[var(--card-bg)] hover:bg-white/5'}`}
+                >
+                    <div className="flex justify-between items-start z-10 w-full">
+                        <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${isSelected ? 'bg-[var(--accent-color)] text-black' : 'bg-white/10 text-[var(--muted)]'}`}>PLAYLIST</span>
+                        <span className={`material-symbols-rounded text-2xl ${isSelected ? 'text-[var(--accent-color)]' : 'text-white/30'}`}>{config.icon}</span>
+                    </div>
+                    
+                    <div className="z-10 mt-auto">
+                        <h4 className={`text-sm font-bold mb-1 ${isSelected ? 'text-white' : 'text-[var(--text-primary)]'}`}>{config.id}</h4>
+                        <div className="relative h-8 w-full overflow-hidden">
+                            <AnimatePresence mode="wait">
+                                <motion.p 
+                                    key={verseIndex}
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -10 }}
+                                    transition={{ duration: 0.5 }}
+                                    className="font-sacred text-[10px] italic leading-tight text-[var(--muted)] absolute w-full top-0 line-clamp-2"
+                                >
+                                    "{config.verses[verseIndex]}"
+                                </motion.p>
+                            </AnimatePresence>
+                        </div>
+                    </div>
+                </button>
+            );
+        };
+
+        const HymnListItem = ({ hymn, onClick, isFav, onToggleFav }) => (
+            <div onClick={onClick} className="w-full bg-[var(--card-bg)] rounded-xl p-4 mb-2 flex items-center justify-between border border-white/5 active:scale-[0.98] transition-transform cursor-pointer group hover:bg-white/5 shadow-sm">
+                <div className="flex items-center gap-4 overflow-hidden">
+                    <span className={`text-lg font-bold font-display text-[var(--accent-color)] w-8 text-center shrink-0 ${hymn.glow ? 'golden-glow' : ''}`}>{hymn.id}</span>
+                    <div className="flex flex-col overflow-hidden">
+                        <h4 className="font-bold text-sm text-[var(--text-primary)] truncate">{hymn.title}</h4>
+                        <p className="text-[10px] text-[var(--muted)] flex items-center gap-2">
+                            <span className="px-1.5 py-0.5 rounded bg-white/5 text-[var(--text-primary)] font-bold">{hymn.key}</span>
+                            <span>• {hymn.duration}</span>
+                        </p>
+                    </div>
+                </div>
+                <button 
+                    onClick={(e) => { e.stopPropagation(); onToggleFav(hymn.id); }}
+                    className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors"
+                >
+                    <span className={`material-symbols-rounded text-xl ${isFav ? 'text-red-500 font-filled' : 'text-[var(--muted)]'}`}>favorite</span>
+                </button>
+            </div>
+        );
+
+        const HomeScreen = () => {
+            const { filterCategory, setFilterCategory, navigate, favorites, toggleFavorite, playHymn } = useContext(AppContext);
+            
+            const filteredHymns = useMemo(() => {
+                if (!filterCategory) return hymnalData;
+                const validCategories = CATEGORY_MAP[filterCategory] || [];
+                return hymnalData.filter(h => validCategories.includes(h.category));
+            }, [filterCategory]);
+
+            return (
+                <motion.div initial={{opacity:0}} animate={{opacity:1}} className="pt-20 pb-32 px-4 h-full overflow-y-auto scrollbar-hide">
+                    
+                    {/* CATEGORY GRID */}
+                    <div className="grid grid-cols-2 gap-3 mb-6">
+                        {CATEGORY_CONFIG.map(cat => (
+                            <PlaylistCard 
+                                key={cat.id} 
+                                config={cat} 
+                                isSelected={filterCategory === cat.id}
+                                onClick={() => setFilterCategory(filterCategory === cat.id ? null : cat.id)}
+                            />
+                        ))}
+                    </div>
+
+                    {/* HYMN LIST */}
+                    <AnimatePresence mode="wait">
+                        <motion.div 
+                            key={filterCategory || 'all'}
+                            initial={{opacity:0, y:10}} 
+                            animate={{opacity:1, y:0}} 
+                            exit={{opacity:0, y:-10}}
+                            className="pb-8"
+                        >
+                            <div className="flex justify-between items-center mb-4 px-1 border-b border-white/5 pb-2">
+                                <h3 className="text-xs font-bold uppercase tracking-widest text-[var(--muted)] flex items-center gap-2">
+                                    <span className="w-1 h-4 bg-[var(--accent-color)] rounded-full"></span>
+                                    {filterCategory ? filterCategory : 'Todos os Hinos'} ({filteredHymns.length})
+                                </h3>
+                                {filterCategory && (
+                                    <button onClick={() => setFilterCategory(null)} className="flex items-center gap-1 text-[10px] font-bold text-[var(--accent-color)] bg-[var(--accent-color)]/10 px-3 py-1.5 rounded-full hover:bg-[var(--accent-color)] hover:text-black transition-colors">
+                                        VER TODOS <span className="material-symbols-rounded text-sm">close</span>
+                                    </button>
+                                )}
+                            </div>
+
+                            {filteredHymns.length === 0 ? (
+                                <div className="text-center py-10 opacity-30 border border-dashed border-white/10 rounded-xl">
+                                    <p className="text-xs">Nenhum hino encontrado nesta playlist.</p>
+                                </div>
+                            ) : (
+                                filteredHymns.map(h => (
+                                    <HymnListItem 
+                                        key={h.id} 
+                                        hymn={h} 
+                                        isFav={favorites.includes(h.id)}
+                                        onToggleFav={toggleFavorite}
+                                        onClick={() => {
+                                            playHymn(h); // Starts mini player
+                                            navigate('reader', h); // Opens reader
+                                        }}
+                                    />
+                                ))
+                            )}
+                        </motion.div>
+                    </AnimatePresence>
+                </motion.div>
+            );
+        };
+
+        const WelcomeScreen = () => {
+            const { login, userProfile } = useContext(AppContext);
+            const [name, setName] = useState(userProfile.name);
+            const [role, setRole] = useState(userProfile.role);
+            const [instrument, setInstrument] = useState(userProfile.instrument);
+            const [showTerms, setShowTerms] = useState(false);
+
+            const instruments = ['Violino', 'Viola', 'Cello', 'Flauta', 'Saxofone', 'Trompete', 'Trombone', 'Clarinete', 'Órgão', 'Acordeon', 'Outro'];
+            const roles = ['Músico', 'Organista', 'Encarregado', 'Instrutor', 'Candidato', 'Irmandade'];
+
+            const handleEnter = () => {
+                if(!name.trim()) return alert("Por favor, digite seu nome.");
+                login(name, role, instrument);
+            };
+
+            return (
+                <div className="h-screen w-full bg-gradient-to-br from-[#FF8C42] to-[#FF4D4D] flex flex-col items-center justify-center p-6 relative overflow-hidden">
+                    <div className="absolute top-10 left-[-50px] w-64 h-64 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
+                    <div className="absolute bottom-10 right-[-50px] w-80 h-80 bg-[#FFD700]/20 rounded-full blur-3xl pointer-events-none"></div>
+
+                    <motion.div
+                        initial={{ scale: 0.9, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        className="w-full max-w-sm bg-white/20 backdrop-blur-[20px] border border-white/30 rounded-[40px] p-8 shadow-2xl flex flex-col items-center text-center z-10"
+                    >
+                        <div className="mb-6 p-4 bg-white/20 rounded-full shadow-lg border border-white/20">
+                             <span className="material-symbols-rounded text-5xl text-white drop-shadow-md">menu_book</span>
+                        </div>
+
+                        <h1 className="font-display font-bold text-4xl text-white mb-2 tracking-tight drop-shadow-sm">Vibrato Digital</h1>
+                        <p className="font-sans text-white/90 text-sm mb-8 font-medium">Seu hinário digital</p>
+
+                        <div className="w-full space-y-4 mb-6">
+                            <div className="text-left">
+                                <label className="text-[10px] uppercase font-bold text-white/80 ml-4 mb-1 block">Seu Nome</label>
+                                <input
+                                    type="text"
+                                    value={name}
+                                    onChange={e => setName(e.target.value)}
+                                    placeholder="Digite seu nome"
+                                    className="w-full p-4 rounded-full bg-black/10 border border-white/10 text-white placeholder-white/50 outline-none focus:bg-black/20 focus:border-white/50 transition-all text-center"
+                                />
+                            </div>
+                            <div className="flex gap-2">
+                                 <select value={role} onChange={e => setRole(e.target.value)} className="w-1/2 p-3 rounded-full bg-black/10 border border-white/10 text-white text-xs outline-none appearance-none text-center">
+                                    {roles.map(r => <option key={r} value={r} className="text-black">{r}</option>)}
+                                </select>
+                                 <select value={instrument} onChange={e => setInstrument(e.target.value)} className="w-1/2 p-3 rounded-full bg-black/10 border border-white/10 text-white text-xs outline-none appearance-none text-center">
+                                    {instruments.map(i => <option key={i} value={i} className="text-black">{i}</option>)}
+                                </select>
+                            </div>
+                        </div>
+
+                        <button
+                            onClick={handleEnter}
+                            className="w-full py-4 rounded-full bg-gradient-to-r from-[#FF8C42] to-[#FF4D4D] text-white font-bold text-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all flex items-center justify-center gap-2 border border-white/20"
+                        >
+                            Acessar Hinário
+                            <span className="material-symbols-rounded">arrow_forward</span>
+                        </button>
+
+                        <button onClick={() => setShowTerms(true)} className="mt-6 text-white/80 text-sm hover:text-white underline decoration-white/50 underline-offset-4 font-medium">
+                            Configurar Perfil / Termos
+                        </button>
+                    </motion.div>
+                    <div className="absolute bottom-6 text-white/60 text-xs font-medium">Versão 2.3.0 (Point Omega)</div>
+                    {showTerms && <TermsModal onClose={() => setShowTerms(false)} />}
+                </div>
+            );
+        };
+
+        const TopBar = () => {
+            const { screen, navigate, userProfile } = useContext(AppContext);
+            return (
+                <div className="fixed top-0 w-full z-50 h-16 bg-[var(--bg-color)]/80 backdrop-blur-md border-b border-white/5 flex items-center justify-between px-4 transition-colors duration-500">
+                    <div className="flex items-center gap-3">
+                        {screen !== 'home' && (
+                            <button onClick={() => navigate('home')} className="p-2 rounded-full hover:bg-white/10 active:scale-95 transition-all">
+                                <span className="material-symbols-rounded text-[var(--text-primary)]">arrow_back</span>
+                            </button>
+                        )}
+                        <div 
+                            onClick={() => navigate('settings')} 
+                            className="cursor-pointer group select-none flex flex-col justify-center h-full active:scale-95 transition-transform duration-200"
+                            title="Editar Perfil"
+                        >
+                            <h1 className="font-display font-bold text-sm text-[var(--text-primary)] group-hover:text-[var(--accent-color)] transition-colors duration-300">
+                                {userProfile && userProfile.name ? userProfile.name : 'Visitante'}
+                            </h1>
+                            <div className="flex items-center gap-1 group-hover:translate-x-1 transition-transform duration-300">
+                                <span className="text-[10px] text-[var(--accent-color)] opacity-80 group-hover:opacity-100 group-hover:text-white transition-all">
+                                    {userProfile ? `${userProfile.role} • ${userProfile.instrument}` : 'Toque para configurar'}
+                                </span>
+                                <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_5px_#22c55e]"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <button onClick={() => navigate('settings')} className="w-10 h-10 rounded-full flex items-center justify-center text-[var(--text-primary)] hover:bg-white/5 active:scale-95 transition-all">
+                        <span className="material-symbols-rounded icon-glow">tune</span>
+                    </button>
+                </div>
+            );
+        };
+
+        const BottomNav = () => {
+            const { screen, navigate } = useContext(AppContext);
+            const navItems = [
+                { id: 'home', icon: 'church', label: 'Início' },
+                { id: 'list', icon: 'search', label: 'Buscar' },
+                { id: 'favorites', icon: 'favorite', label: 'Favoritos' }
+            ];
+
+            return (
+                <div className="fixed bottom-0 w-full h-20 bg-[var(--bg-color)]/90 backdrop-blur-lg border-t border-white/5 flex justify-around items-center z-50 pb-2 transition-colors duration-500">
+                    {navItems.map(item => (
+                        <button key={item.id} onClick={() => navigate(item.id)} className={`flex flex-col items-center p-2 transition-all duration-300 ${screen === item.id ? 'scale-110' : 'opacity-50 hover:opacity-80'}`}>
+                            <span className={`material-symbols-rounded mb-1 text-2xl ${screen === item.id ? 'icon-glow text-[var(--accent-color)]' : 'text-[var(--text-primary)]'}`}>{item.icon}</span>
+                            <span className={`text-[10px] font-bold ${screen === item.id ? 'text-[var(--accent-color)]' : 'text-[var(--text-primary)]'}`}>{item.label}</span>
+                        </button>
+                    ))}
+                </div>
+            );
+        };
+
+        const SettingsScreen = () => {
+            const { userProfile, updateProfile, navigate, installApp, currentThemeId, setCurrentThemeId, fontSize, setFontSize, resetData } = useContext(AppContext);
+            
+            // State for local editing before save
+            const [formData, setFormData] = useState({...userProfile});
+            const [showSuccess, setShowSuccess] = useState(false);
+
+            const handleSave = () => {
+                updateProfile('name', formData.name);
+                updateProfile('role', formData.role);
+                updateProfile('instrument', formData.instrument);
+                updateProfile('bio', formData.bio);
+                
+                setShowSuccess(true);
+                setTimeout(() => setShowSuccess(false), 2000);
+            };
+
+            return (
+                <motion.div initial={{opacity:0}} animate={{opacity:1}} className="h-full bg-[var(--bg-color)] relative overflow-y-auto pb-24">
+                    {/* Header with Photo Edit */}
+                    <div className="relative h-48 bg-gradient-to-br from-[#FF8C42] to-[#FF4D4D] rounded-b-[40px] shadow-glow">
+                        <div className="absolute top-0 left-0 w-full p-4 flex items-center justify-between z-10">
+                             <button onClick={() => navigate('home')} className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white active:scale-95 transition-transform">
+                                <span className="material-symbols-rounded">arrow_back</span>
+                            </button>
+                            <h2 className="text-white font-display font-bold text-lg">Editar Perfil</h2>
+                            <div className="w-10"></div> {/* Spacer */}
+                        </div>
+                        
+                        {/* Avatar / Photo Edit - EXCLUSIVE LOCATION */}
+                        <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2">
+                            <div className="w-28 h-28 rounded-full border-4 border-[var(--bg-color)] bg-white shadow-xl relative overflow-hidden group">
+                                 <div className="w-full h-full bg-gradient-to-tr from-purple-500 to-[var(--accent-color)] flex items-center justify-center text-4xl font-bold text-white">
+                                    {formData.name ? formData.name.charAt(0) : '?'}
+                                 </div>
+                                 <div className="absolute bottom-0 right-0 w-full h-full bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                                    <span className="material-symbols-rounded text-white">photo_camera</span>
+                                 </div>
+                            </div>
+                             <div className="absolute bottom-0 right-0 bg-[var(--accent-color)] w-8 h-8 rounded-full border-2 border-[var(--bg-color)] flex items-center justify-center text-white shadow-md pointer-events-none">
+                                <span className="material-symbols-rounded text-sm">edit</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Form */}
+                    <div className="mt-16 px-6 space-y-5">
+                        
+                        {/* Name */}
+                        <div className="space-y-1">
+                            <label className="text-xs font-bold text-[var(--muted)] uppercase tracking-wider ml-2">Nome de Exibição</label>
+                            <input 
+                                type="text" 
+                                value={formData.name} 
+                                onChange={e => setFormData({...formData, name: e.target.value})}
+                                className="w-full p-4 rounded-2xl bg-[var(--card-bg)] border border-white/5 text-[var(--text-primary)] focus:border-[var(--accent-color)] focus:shadow-neon outline-none transition-all font-medium"
+                            />
+                        </div>
+
+                        {/* Instrument & Role Row */}
+                        <div className="flex gap-4">
+                             <div className="space-y-1 w-1/2">
+                                <label className="text-xs font-bold text-[var(--muted)] uppercase tracking-wider ml-2">Instrumento</label>
+                                 <div className="relative">
+                                    <select 
+                                        value={formData.instrument} 
+                                        onChange={e => setFormData({...formData, instrument: e.target.value})}
+                                        className="w-full p-4 rounded-2xl bg-[var(--card-bg)] border border-white/5 text-[var(--text-primary)] outline-none appearance-none font-medium"
+                                    >
+                                        {['Violino', 'Viola', 'Cello', 'Flauta', 'Saxofone', 'Trompete', 'Trombone', 'Clarinete', 'Órgão', 'Acordeon', 'Outro'].map(i => <option key={i} value={i}>{i}</option>)}
+                                    </select>
+                                    <span className="material-symbols-rounded absolute right-4 top-4 text-[var(--muted)] pointer-events-none">expand_more</span>
+                                </div>
+                            </div>
+                            <div className="space-y-1 w-1/2">
+                                <label className="text-xs font-bold text-[var(--muted)] uppercase tracking-wider ml-2">Cargo</label>
+                                 <div className="relative">
+                                     <select 
+                                        value={formData.role} 
+                                        onChange={e => setFormData({...formData, role: e.target.value})}
+                                        className="w-full p-4 rounded-2xl bg-[var(--card-bg)] border border-white/5 text-[var(--text-primary)] outline-none appearance-none font-medium"
+                                    >
+                                        {['Músico', 'Organista', 'Encarregado', 'Instrutor', 'Candidato', 'Irmandade'].map(r => <option key={r} value={r}>{r}</option>)}
+                                    </select>
+                                    <span className="material-symbols-rounded absolute right-4 top-4 text-[var(--muted)] pointer-events-none">expand_more</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Bio */}
+                        <div className="space-y-1">
+                            <label className="text-xs font-bold text-[var(--muted)] uppercase tracking-wider ml-2">Biografia</label>
+                            <textarea 
+                                rows="2"
+                                value={formData.bio || ''} 
+                                onChange={e => setFormData({...formData, bio: e.target.value})}
+                                className="w-full p-4 rounded-2xl bg-[var(--card-bg)] border border-white/5 text-[var(--text-primary)] focus:border-[var(--accent-color)] outline-none transition-all font-medium resize-none"
+                            ></textarea>
+                        </div>
+
+                         {/* Email (Locked) */}
+                        <div className="space-y-1 opacity-60">
+                            <label className="text-xs font-bold text-[var(--muted)] uppercase tracking-wider ml-2 flex items-center gap-1">E-mail <span className="material-symbols-rounded text-[10px]">lock</span></label>
+                            <div className="w-full p-4 rounded-2xl bg-[var(--card-bg)] border border-white/5 text-[var(--text-primary)] font-medium flex items-center justify-between">
+                                <span>{formData.email || 'Não informado'}</span>
+                                <span className="material-symbols-rounded text-[var(--accent-color)]">lock</span>
+                            </div>
+                        </div>
+
+                        {/* Save Button - Moved Here */}
+                        <div className="pt-2">
+                            <button 
+                                onClick={handleSave}
+                                className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#FF8C42] to-[#FF4D4D] text-white font-bold text-lg shadow-[0_10px_20px_rgba(255,140,66,0.3)] hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
+                            >
+                                Salvar Alterações
+                                <span className="material-symbols-rounded">check</span>
+                            </button>
+                        </div>
+                        
+                        {/* Visual Settings Section */}
+                         <div className="pt-6 border-t border-white/5">
+                            <h3 className="text-sm font-bold text-[var(--text-primary)] mb-4 ml-2">Preferências do App</h3>
+                            <div className="bg-[var(--card-bg)] rounded-2xl p-4 border border-white/5 mb-4">
+                                 <div className="flex justify-between items-center mb-4">
+                                    <span className="text-xs text-[var(--muted)]">Tamanho da Fonte</span>
+                                    <span className="text-xs font-bold text-[var(--accent-color)]">{fontSize}px</span>
+                                 </div>
+                                 <input type="range" min="14" max="42" step="2" value={fontSize} onChange={(e) => setFontSize(parseInt(e.target.value))} className="w-full accent-[var(--accent-color)] h-2 bg-white/10 rounded-lg appearance-none cursor-pointer" />
+                            </div>
+                            
+                             <div className="grid grid-cols-5 gap-2 mb-6">
+                                {THEMES.map(t => (
+                                    <button key={t.id} onClick={() => setCurrentThemeId(t.id)} className={`w-full aspect-square rounded-xl border-2 transition-transform active:scale-95 ${currentThemeId === t.id ? 'border-[var(--accent-color)] scale-110' : 'border-transparent'}`} style={{ background: `linear-gradient(135deg, ${t.bg}, ${t.card})` }}>
+                                    </button>
+                                ))}
+                            </div>
+
+                            {/* About Button - Added here */}
+                            <button onClick={() => navigate('about')} className="w-full py-3 rounded-xl bg-[var(--accent-color)]/10 text-[var(--accent-color)] text-sm font-bold flex items-center justify-center gap-2 mb-4 hover:bg-[var(--accent-color)]/20 transition-colors border border-[var(--accent-color)]/20">
+                                <span className="material-symbols-rounded">info</span> Sobre o Aplicativo
+                            </button>
+                            
+                            <button onClick={installApp} className="w-full py-3 rounded-xl bg-white/5 text-white/70 text-sm font-bold flex items-center justify-center gap-2 mb-4 hover:bg-white/10">
+                                <span className="material-symbols-rounded">install_mobile</span> Instalar App
+                            </button>
+                            
+                            <button onClick={resetData} className="w-full py-3 rounded-xl border border-red-500/30 text-red-500/70 text-sm font-bold hover:bg-red-500/10">
+                                Resetar Tudo
+                            </button>
+                        </div>
+
+                        <div className="h-8"></div>
+                    </div>
+
+                    {/* Success Toast */}
+                    <AnimatePresence>
+                        {showSuccess && (
+                            <motion.div initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} exit={{opacity:0}} className="fixed top-10 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-2 z-50">
+                                <span className="material-symbols-rounded">check_circle</span>
+                                <span className="font-bold text-sm">Perfil atualizado!</span>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </motion.div>
+            );
+        };
+
+        const AboutScreen = () => {
+            const { navigate } = useContext(AppContext);
+
+            return (
+                <motion.div initial={{opacity:0, x:50}} animate={{opacity:1, x:0}} exit={{opacity:0, x:-50}} className="h-full bg-[var(--bg-color)] relative overflow-y-auto">
+                    {/* Header */}
+                    <div className="relative h-24 flex items-center px-4 bg-gradient-to-b from-black/50 to-transparent">
+                         <button onClick={() => navigate('settings')} className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white active:scale-95 transition-transform z-10">
+                            <span className="material-symbols-rounded">arrow_back</span>
+                        </button>
+                    </div>
+
+                    <div className="px-6 pb-24 text-center">
+                        <motion.div 
+                            initial={{scale:0, opacity:0}} animate={{scale:1, opacity:1}} transition={{type:"spring", duration:0.8}}
+                            className="w-32 h-32 rounded-full mx-auto mb-6 p-1 bg-gradient-to-tr from-[#FF8C42] to-[#FF4D4D] shadow-[0_0_30px_rgba(255,140,66,0.4)]"
+                        >
+                            <div className="w-full h-full rounded-full bg-[#1E1E1E] flex items-center justify-center overflow-hidden border-4 border-[#121212]">
+                                <span className="text-5xl font-bold text-white">N</span>
+                            </div>
+                        </motion.div>
+
+                        <h2 className="text-2xl font-display font-bold text-white mb-1">Natan Dias Corrêa</h2>
+                        <p className="text-[var(--accent-color)] font-medium text-sm mb-8 tracking-wide uppercase opacity-80">Estudante de ADS</p>
+
+                        <div className="bg-[var(--card-bg)] p-6 rounded-3xl border border-white/5 shadow-xl mb-8 relative overflow-hidden">
+                            <span className="material-symbols-rounded text-6xl text-white/5 absolute -right-2 -bottom-4">format_quote</span>
+                            <p className="text-gray-300 leading-relaxed font-light italic relative z-10">
+                                "Este aplicativo tem o intuito de permitir que as pessoas ouçam e louvem a Deus em qualquer lugar, facilitando o acesso ao hinário e promovendo a comunhão."
+                            </p>
+                        </div>
+
+                        <div className="space-y-4 mb-10">
+                            <a href="https://www.instagram.com/natandias_crr_soc/" target="_blank" className="block w-full py-4 rounded-2xl bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-95 transition-transform shadow-lg">
+                                <span className="text-xl">📷</span> Siga no Instagram
+                            </a>
+                             <a href="https://www.linkedin.com/in/natan-correa-sec" target="_blank" className="block w-full py-4 rounded-2xl bg-[#0077B5] text-white font-bold flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-95 transition-transform shadow-lg">
+                                <span className="text-xl font-serif font-bold bg-white text-[#0077B5] w-6 h-6 flex items-center justify-center rounded text-sm">in</span> Conectar no LinkedIn
+                            </a>
+                        </div>
+
+                        <div className="text-center opacity-40">
+                            <p className="text-xs font-bold uppercase tracking-widest mb-1">Vibrato Digital</p>
+                            <p className="text-[10px]">Versão 2.3.0 - Security Update</p>
+                            <p className="text-[10px] mt-2">Vibrato Digital © 2026 - Desenvolvido por Natan Dias Corrêa.</p>
+                        </div>
+                    </div>
+                </motion.div>
+            );
+        };
+
+        const ReaderScreen = () => {
+            const { activeHymn, fontSize, setFontSize, toggleFavorite, favorites, playHymn } = useContext(AppContext);
+            if (!activeHymn) return null;
+            const isFav = favorites.includes(activeHymn.id);
+
+            return (
+                <motion.div initial={{opacity:0, y:50}} animate={{opacity:1, y:0}} className="pt-20 pb-32 px-6 h-full overflow-y-auto bg-[var(--bg-color)]">
+                    <div className="text-center mb-10 relative">
+                        <span className="px-3 py-1 rounded-full border border-[var(--accent-color)] text-[var(--accent-color)] text-[10px] font-bold uppercase tracking-widest mb-3 inline-block shadow-neon">{activeHymn.category}</span>
+                        <h1 className={`text-3xl font-display font-bold text-[var(--text-primary)] mb-2 leading-tight ${activeHymn.glow ? 'golden-glow' : ''}`}>{activeHymn.title}</h1>
+                        <p className="text-lg text-[var(--accent-color)] font-bold">{activeHymn.key}</p>
+                        <button onClick={() => playHymn(activeHymn)} className="mt-4 px-4 py-2 bg-white/10 rounded-full text-xs font-bold flex items-center gap-2 mx-auto hover:bg-white/20 transition-colors">
+                             <span className="material-symbols-rounded">play_circle</span> Ouvir Hino
+                        </button>
+                    </div>
+
+                    <div className="max-w-xl mx-auto" style={{ fontSize: `${fontSize}px` }}>
+                        {activeHymn.verses.map((verse, i) => (
+                            <div key={i} className="mb-8">
+                                <div className="flex gap-4">
+                                    <span className="w-8 h-8 rounded-full bg-[var(--card-bg)] text-[var(--accent-color)] flex items-center justify-center text-[12px] font-bold shrink-0 mt-1 border border-white/10 shadow-sm">{i + 1}</span>
+                                    <p className="hymn-verse text-[var(--text-primary)]">{verse}</p>
+                                </div>
+                                {i === 0 && activeHymn.chorus && (
+                                    <div className="ml-12 chorus-block text-[var(--text-primary)]">
+                                        <span className="block text-[10px] uppercase font-bold mb-2 not-italic opacity-50 text-[var(--accent-color)] tracking-widest">Coro</span>
+                                        {activeHymn.chorus}
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Font Controls */}
+                    <div className="fixed bottom-32 left-6 flex flex-col gap-2 z-30">
+                        <button onClick={() => setFontSize(prev => Math.min(prev + 2, 42))} className="w-12 h-12 rounded-full bg-[var(--card-bg)] border border-white/10 text-[var(--accent-color)] shadow-lg flex items-center justify-center active:scale-95">
+                            <span className="material-symbols-rounded">text_increase</span>
+                        </button>
+                        <button onClick={() => setFontSize(prev => Math.max(prev - 2, 14))} className="w-12 h-12 rounded-full bg-[var(--card-bg)] border border-white/10 text-[var(--muted)] shadow-lg flex items-center justify-center active:scale-95">
+                            <span className="material-symbols-rounded">text_decrease</span>
+                        </button>
+                    </div>
+
+                    <button onClick={() => toggleFavorite(activeHymn.id)} className={`fixed bottom-32 right-6 w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all active:scale-90 z-30 ${isFav ? 'bg-red-500 text-white shadow-red-500/50' : 'bg-[var(--card-bg)] text-[var(--muted)] border border-white/10'}`}>
+                        <span className={`material-symbols-rounded text-2xl ${isFav ? 'font-filled' : ''}`}>favorite</span>
+                    </button>
+                </motion.div>
+            );
+        };
+
+        const ListScreen = () => {
+            const { navigate } = useContext(AppContext);
+            const [searchTerm, setSearchTerm] = useState("");
+            const filtered = useMemo(() => {
+                const s = searchTerm.toLowerCase();
+                if (!s) return hymnalData;
+                return hymnalData.filter(h => h.id.toString().includes(s) || h.title.toLowerCase().includes(s) || h.category.toLowerCase().includes(s) || h.verses.some(v => v.toLowerCase().includes(s)) || (h.chorus && h.chorus.toLowerCase().includes(s)));
+            }, [searchTerm]);
+
+            return (
+                <motion.div initial={{opacity:0}} animate={{opacity:1}} className="pt-20 pb-24 px-4 h-full overflow-y-auto">
+                    <div className="sticky top-0 z-10 bg-[var(--bg-color)] pb-4 pt-2">
+                        <div className="relative">
+                            <input type="text" placeholder="Buscar por número, título, categoria..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full p-4 pl-12 rounded-xl bg-[var(--card-bg)] text-[var(--text-primary)] outline-none border border-white/10 focus:border-[var(--accent-color)] focus:shadow-neon transition-all placeholder-white/20" autoFocus />
+                            <span className="material-symbols-rounded absolute left-4 top-4 text-[var(--muted)]">search</span>
+                        </div>
+                    </div>
+                    <div className="space-y-2">
+                        {filtered.length === 0 ? <div className="text-center py-20 opacity-30"><p className="text-sm">Nenhum hino encontrado.</p></div> : filtered.map(h => (
+                            <div key={h.id} onClick={() => navigate('reader', h)} className="p-4 rounded-xl bg-[var(--card-bg)] border border-white/5 flex items-center justify-between active:scale-[0.98] cursor-pointer">
+                                <div className="flex items-center gap-4">
+                                    <span className={`text-md font-bold text-[var(--accent-color)] w-10 text-right ${h.glow ? 'golden-glow' : ''}`}>{h.id}</span>
+                                    <div className="overflow-hidden">
+                                        <h4 className="font-bold text-sm text-[var(--text-primary)] truncate">{h.title}</h4>
+                                        {searchTerm && <p className="text-[10px] text-[var(--muted)] truncate">...{h.verses[0].substring(0, 30)}...</p>}
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </motion.div>
+            );
+        };
+
+        const FavoritesScreen = () => {
+            const { navigate, favorites } = useContext(AppContext);
+            const favHymns = hymnalData.filter(h => favorites.includes(h.id));
+
+            return (
+                <motion.div initial={{opacity:0}} animate={{opacity:1}} className="pt-20 pb-24 px-4 h-full overflow-y-auto">
+                    <h2 className="text-xl font-bold font-display mb-4 text-[var(--text-primary)]">Meus Favoritos</h2>
+                    {favHymns.length === 0 ? <div className="text-center py-20 opacity-30"><span className="material-symbols-rounded text-5xl mb-2">favorite_border</span><p className="text-sm">Nenhum hino favoritado ainda.</p></div> : (
+                        <div className="space-y-2">
+                            {favHymns.map(h => (
+                                <div key={h.id} onClick={() => navigate('reader', h)} className="p-4 rounded-xl bg-[var(--card-bg)] border border-white/5 flex items-center justify-between active:scale-[0.98] cursor-pointer">
+                                    <div className="flex items-center gap-4">
+                                        <span className="text-md font-bold text-red-400 w-8 text-right">{h.id}</span>
+                                        <h4 className="font-bold text-sm text-[var(--text-primary)]">{h.title}</h4>
+                                    </div>
+                                    <span className="material-symbols-rounded text-red-500 text-sm">favorite</span>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </motion.div>
+            );
+        };
+
+        const Main = () => {
+            const { screen, termsAccepted, acceptTerms } = useContext(AppContext);
+            return (
+                <>
+                    {!termsAccepted && <TermsModal onClose={acceptTerms} isMandatory={true} />}
+                    {screen === 'welcome' ? <WelcomeScreen /> : (
+                        <div className="h-screen w-full overflow-hidden relative selection:bg-[var(--accent-color)] selection:text-black">
+                            {screen !== 'welcome' && screen !== 'settings' && screen !== 'about' && <TopBar />}
+                            <AnimatePresence mode="wait">
+                                {screen === 'home' && <HomeScreen key="home" />}
+                                {screen === 'list' && <ListScreen key="list" />}
+                                {screen === 'favorites' && <FavoritesScreen key="favorites" />}
+                                {screen === 'reader' && <ReaderScreen key="reader" />}
+                                {screen === 'settings' && <SettingsScreen key="settings" />}
+                                {screen === 'about' && <AboutScreen key="about" />}
+                            </AnimatePresence>
+                            <MiniPlayer />
+                            <BottomNav />
+                        </div>
+                    )}
+                </>
+            );
+        };
+
+        const Root = () => <AppProvider><Main /></AppProvider>;
+        ReactDOM.createRoot(document.getElementById('root')).render(<Root />);
+    </script>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>
