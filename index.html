@@ -829,7 +829,7 @@
             ];
 
             return (
-                <div className="fixed bottom-0 w-full h-20 bg-[var(--bg-color)]/90 backdrop-blur-lg border-t border-white/5 flex justify-around items-center z-50 pb-2 transition-colors duration-500">
+                <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[400px] bg-[var(--card-bg)] border-t border-white/10 flex justify-around items-center p-2 z-50">
                     {navItems.map(item => (
                         <button key={item.id} onClick={() => navigate(item.id)} className={`flex flex-col items-center p-2 transition-all duration-300 ${screen === item.id ? 'scale-110' : 'opacity-50 hover:opacity-80'}`}>
                             <span className={`material-symbols-rounded mb-1 text-2xl ${screen === item.id ? 'icon-glow text-[var(--accent-color)]' : 'text-[var(--text-primary)]'}`}>{item.icon}</span>
