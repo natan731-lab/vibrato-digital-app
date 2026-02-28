@@ -58,7 +58,49 @@
         }
     </script>
 
-    <style>
+        <style>
+        /* 1. CONFIGURAÇÃO DE RESPONSIVIDADE (MOBILE-FIRST) */
+        /* Configuração padrão para Celular */
+        .container {
+            width: 100%;
+            min-height: 100vh;
+            margin: 0;
+            background: #FF6B45; /* Sua cor principal Sunset */
+        }
+
+        /* Identifica se é Tablet ou Computador (Telas maiores que 768px) */
+        @media (min-width: 768px) {
+            body {
+                background-color: #121212; /* Fundo escuro atrás do app no PC */
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: 100vh;
+                margin: 0;
+            }
+
+            .container {
+                width: 400px; /* Trava o tamanho de celular no PC */
+                height: 850px; /* Altura de um smartphone */
+                margin: 20px auto;
+                border-radius: 30px; /* Bordas arredondadas estilo iPhone/Android */
+                box-shadow: 0 20px 50px rgba(0,0,0,0.5); /* Sombra profissional */
+                position: relative;
+                overflow: hidden;
+            }
+        }
+        
+        /* 2. SUAS VARIÁVEIS DE CORES E SEGURANÇA */
+        :root {
+            /* POINT_ULTRA_SECURE: Carbon Glow + Sunset Orange */
+            --bg-color: #121212;
+            --card-bg: #1E1E1E;
+            --accent-color: #FF8C42; 
+            --glow-color: rgba(255, 140, 66, 0.2);
+            --text-primary: #FFFFFF;
+            --text-secondary: #A0AEC0;
+        }
+        
         :root {
             /* POINT_ULTRA_SECURE: Carbon Glow + Sunset Orange */
             --bg-color: #121212;
