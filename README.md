@@ -1,7 +1,7 @@
 # 🛡️ Laboratório de Vibrato Tech Solutions
 
 <p align="center">
-  <img src="logo-vibrato-tech-solutions-lab.png.png" width="100%">
+ <img src="logo-vibrato-tech-solutions-lab.png.png" width="100%">
 </p>
 
 # 🛡️ Laboratório de Vibrato Tech Solutions
