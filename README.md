@@ -1,8 +1,10 @@
 # 🛡️ Laboratório de Vibrato Tech Solutions
 
 <p align="center">
-  <img src="banner-vibrato-tech.png" width="100%" alt="Banner Vibrato Tech Solutions">
+  <img src="logo-vibrato-tech-solutions-lab.png.png" width="100%">
 </p>
+
+# 🛡️ Laboratório de Vibrato Tech Solutions
 
 ## 🎻 Vibrato Digital - Seu Hinário Inteligente e Seguro
 O **Vibrato Digital** é um Web App desenvolvido para músicos e organistas, unindo tecnologia e segurança da informação.
