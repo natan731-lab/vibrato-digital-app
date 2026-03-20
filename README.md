@@ -1,20 +1,36 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# 🚀 Notas de Atualização - Vibrato Digital v1.0.0
 
-# Run and deploy your AI Studio app
+Abaixo estão as implementações e melhorias realizadas pela **Vibrato Tech Solutions** para garantir a conformidade e a melhor experiência para o músico:
 
-This contains everything you need to run your app locally.
+---
 
-View your app in AI Studio: https://ai.studio/apps/e875d243-7b88-4459-b002-1f149ae87864
+## 🛡️ Segurança e Compliance (GRC)
 
-## Run Locally
+* [cite_start]**Trava Jurídica Obrigatória:** Implementação de Modal de Consentimento para os **Termos de Serviço**[cite: 1, 22]. [cite_start]O acesso só é liberado após o aceite explícito do usuário[cite: 1, 3].
+* [cite_start]**Isenção de Responsabilidade (Copyright):** Configuração de cláusula técnica confirmando que o app é apenas um visualizador e **NÃO** hospeda conteúdos protegidos[cite: 22, 23].
+* [cite_start]**Conformidade LGPD:** Adição de funções para transparência de dados e o direito ao esquecimento (botão de excluir conta)[cite: 18, 19, 56].
+* [cite_start]**Criptografia Local:** Ativação do módulo **Cofre** com chaves irrecuperáveis armazenadas apenas no dispositivo do usuário[cite: 28, 59, 60].
 
-**Prerequisites:**  Node.js
+---
 
+## 📱 Experiência do Usuário (UX/UI)
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+* **Modo App-Web (PWA):** Configuração para ocultar barras de URL e navegação, permitindo uso em **Tela Cheia** 🖥️.
+* **Design Dark Ops:** Interface em Preto e Amarelo Ouro para alta visibilidade e economia de bateria 🔋.
+* [cite_start]**Modo Contingência:** Otimização para funcionamento **100% Offline**, garantindo o uso em locais sem internet[cite: 22, 32, 33].
+
+---
+
+## ⚙️ Engenharia e Resiliência
+
+* **Ponto de Restauração:** Criação de botão de emergência para limpar cache e destravar o app em caso de erro 🔄.
+* **Backup do Operador:** Função para exportar e importar dados de configuração localmente 💾.
+* **Performance:** Código limpo em Vanilla JS para garantir rapidez no carregamento das playlists de Culto, Batismo e Santa Ceia.
+
+---
+
+### 🖼️ Banner do Projeto
+![Banner Vibrato Tech Solutions](https://link-da-sua-imagem.com/banner.jpeg)
+
+> **Desenvolvedor:** Natan Dias Corrêa  
+> **Tecnologia e Segurança Digital**
