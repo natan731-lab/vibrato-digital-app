@@ -30,7 +30,7 @@ Abaixo estão as implementações e melhorias realizadas pela **Vibrato Tech Sol
 ---
 
 ### 🖼️ Banner do Projeto
-![Banner Vibrato Tech Solutions](https://link-da-sua-imagem.com/banner.jpeg)
+![Banner do linkeadin ](https://github.com/user-attachments/assets/7f5e808d-92f4-4e87-a247-76315a4da0e7)
 
 > **Desenvolvedor:** Natan Dias Corrêa  
 > **Tecnologia e Segurança Digital**
