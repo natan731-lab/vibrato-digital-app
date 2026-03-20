@@ -1,0 +1,18 @@
+{
+  "name": "Vibrato Digital",
+  "short_name": "Vibrato",
+  "description": "Hinário Digital para Músicos - Vibrato Digital v2.3",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2907/2907253.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

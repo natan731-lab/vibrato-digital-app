@@ -3,21 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#121212">
+    <meta name="theme-color" content="#000000">
     <meta name="description" content="Vibrato Digital v2.3 - Hinário Digital para Músicos">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="apple-mobile-web-app-title" content="Vibrato Digital">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2907/2907253.png">
     
-    <!-- PWA MANIFEST (Data URI for Single File Support) -->
-    <link rel="manifest" href='data:application/manifest+json,{"name":"Vibrato Digital","short_name":"Vibrato","start_url":".","display":"standalone","background_color":"#121212","theme_color":"#121212","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/2907/2907253.png","sizes":"512x512","type":"image/png"}]}' />
+    <!-- PWA MANIFEST -->
+    <link rel="manifest" href="/manifest.json">
 
     <title>Vibrato Digital v2.3</title>
 
     <!-- FONTS -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Lexend:wght@300;400;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Lexend:wght@300;400;600;700&family=Montserrat:wght@400;700&family=Asap:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" />
 
     <!-- LIBS -->
@@ -27,6 +28,17 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.js"></script>
 
+    <!-- SERVICE WORKER REGISTRATION -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('[PWA] Service Worker registrado!', reg))
+                    .catch(err => console.log('[PWA] Erro ao registrar SW:', err));
+            });
+        }
+    </script>
+
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -35,7 +47,9 @@
                     fontFamily: { 
                         sans: ['Inter', 'sans-serif'], 
                         display: ['Lexend', 'sans-serif'], 
-                        sacred: ['Playfair Display', 'serif'] 
+                        sacred: ['Playfair Display', 'serif'],
+                        montserrat: ['Montserrat', 'sans-serif'],
+                        asap: ['Asap', 'sans-serif']
                     },
                     colors: {
                         theme: 'var(--bg-color)',
@@ -58,49 +72,7 @@
         }
     </script>
 
-        <style>
-        /* 1. CONFIGURAÇÃO DE RESPONSIVIDADE (MOBILE-FIRST) */
-        /* Configuração padrão para Celular */
-        .container {
-            width: 100%;
-            min-height: 100vh;
-            margin: 0;
-            background: #FF6B45; /* Sua cor principal Sunset */
-        }
-
-        /* Identifica se é Tablet ou Computador (Telas maiores que 768px) */
-        @media (min-width: 768px) {
-            body {
-                background-color: #121212; /* Fundo escuro atrás do app no PC */
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                min-height: 100vh;
-                margin: 0;
-            }
-
-            .container {
-                width: 400px; /* Trava o tamanho de celular no PC */
-                height: 850px; /* Altura de um smartphone */
-                margin: 20px auto;
-                border-radius: 30px; /* Bordas arredondadas estilo iPhone/Android */
-                box-shadow: 0 20px 50px rgba(0,0,0,0.5); /* Sombra profissional */
-                position: relative;
-                overflow: hidden;
-            }
-        }
-        
-        /* 2. SUAS VARIÁVEIS DE CORES E SEGURANÇA */
-        :root {
-            /* POINT_ULTRA_SECURE: Carbon Glow + Sunset Orange */
-            --bg-color: #121212;
-            --card-bg: #1E1E1E;
-            --accent-color: #FF8C42; 
-            --glow-color: rgba(255, 140, 66, 0.2);
-            --text-primary: #FFFFFF;
-            --text-secondary: #A0AEC0;
-        }
-        
+    <style>
         :root {
             /* POINT_ULTRA_SECURE: Carbon Glow + Sunset Orange */
             --bg-color: #121212;
@@ -281,7 +253,8 @@
             
             const [currentThemeId, setCurrentThemeId] = useState('carbon');
             const [fontSize, setFontSize] = useState(22);
-            const [termsAccepted, setTermsAccepted] = useState(() => localStorage.getItem('termos_aceitos') === 'true');
+            const [termsAccepted, setTermsAccepted] = useState(() => localStorage.getItem('vibrato_terms_accepted') === 'true');
+            const [accessDenied, setAccessDenied] = useState(false);
 
             // Player State
             const [playerState, setPlayerState] = useState({ isPlaying: false, hymn: null });
@@ -359,7 +332,11 @@
 
             const acceptTerms = () => {
                 setTermsAccepted(true);
-                localStorage.setItem('termos_aceitos', 'true');
+                localStorage.setItem('vibrato_terms_accepted', 'true');
+            };
+
+            const denyTerms = () => {
+                setAccessDenied(true);
             };
 
             const login = (name, role, instrument) => {
@@ -398,6 +375,43 @@
                 }
             };
 
+            const exportBackup = () => {
+                const data = {
+                    profile: localStorage.getItem('vibrato_profile_v32'),
+                    settings: localStorage.getItem('vibrato_settings_v32'),
+                    favorites: localStorage.getItem('vibrato_favorites_v32'),
+                    terms: localStorage.getItem('termos_aceitos')
+                };
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `vibrato_backup_${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            };
+
+            const importBackup = (file) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        if (data.profile) localStorage.setItem('vibrato_profile_v32', data.profile);
+                        if (data.settings) localStorage.setItem('vibrato_settings_v32', data.settings);
+                        if (data.favorites) localStorage.setItem('vibrato_favorites_v32', data.favorites);
+                        if (data.terms) localStorage.setItem('termos_aceitos', data.terms);
+                        
+                        alert("Backup restaurado com sucesso! O aplicativo será reiniciado.");
+                        window.location.reload();
+                    } catch (err) {
+                        alert("Erro ao carregar backup. Certifique-se de que o arquivo é válido.");
+                    }
+                };
+                reader.readAsText(file);
+            };
+
             const updateProfile = (key, value) => {
                 setUserProfile(prev => ({ ...prev, [key]: value }));
             };
@@ -411,8 +425,9 @@
                     currentThemeId, setCurrentThemeId,
                     fontSize, setFontSize,
                     userProfile, login, updateProfile,
-                    resetData, termsAccepted, acceptTerms, installApp,
-                    playerState, playHymn, togglePlay, closePlayer
+                    resetData, termsAccepted, acceptTerms, denyTerms, accessDenied, installApp,
+                    playerState, playHymn, togglePlay, closePlayer,
+                    exportBackup, importBackup
                 }}>
                     {children}
                 </AppContext.Provider>
@@ -421,30 +436,104 @@
 
         // --- 5. COMPONENTS ---
 
-        const TermsModal = ({ onClose, isMandatory = false }) => (
-            <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex items-center justify-center p-6">
+        const TermsModal = ({ onAccept, onDeny }) => (
+            <div className="fixed inset-0 z-[200] bg-black/90 backdrop-blur-xl flex items-center justify-center p-4 font-asap">
                 <motion.div 
-                    initial={{scale:0.9, opacity:0}} 
-                    animate={{scale:1, opacity:1}} 
-                    className="bg-white/5 backdrop-blur-xl border border-white/20 p-8 rounded-[32px] max-w-sm w-full shadow-2xl relative overflow-hidden"
+                    initial={{ scale: 0.9, opacity: 0 }} 
+                    animate={{ scale: 1, opacity: 1 }} 
+                    className="bg-[#121212]/80 border border-[#FFD700]/30 p-6 rounded-[24px] max-w-lg w-full h-[85vh] flex flex-col shadow-[0_0_50px_rgba(255,215,0,0.1)]"
                 >
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[var(--accent-color)] to-purple-600"></div>
-                    <h3 className="text-2xl font-display font-bold text-white mb-6 text-center">Termos de Uso e Isenção de Responsabilidade</h3>
-                    <div className="space-y-4 text-xs text-gray-300 mb-8 leading-relaxed font-light text-justify">
-                        <p><strong>FINALIDADE:</strong> O Vibrato Digital é um projeto acadêmico e independente de Natan Dias Corrêa para estudo de ADS e música. Não possui fins lucrativos.</p>
-                        <p><strong>ISENÇÃO:</strong> O Vibrato Digital é uma ferramenta independente e NÃO possui vínculo oficial, administrativo ou jurídico com a Congregação Cristã no Brasil ou suas editoras.</p>
-                        <p><strong>DIREITOS:</strong> As letras e melodias dos hinos são de propriedade de seus respectivos detentores de direitos autorais. Este app funciona apenas como um indexador de estudo pessoal.</p>
-                        <p><strong>PRIVACIDADE (LGPD):</strong> Em conformidade com a Lei Geral de Proteção de Dados, informamos que TODOS os seus dados (preferências e perfil) são armazenados localmente no seu dispositivo (LocalStorage). Nenhum dado é coletado ou enviado para servidores externos.</p>
+                    <h2 className="text-[#FFD700] font-montserrat font-bold text-xl mb-4 text-center tracking-tight uppercase">TERMOS DE SERVIÇO - VIBRATO TECH SOLUTIONS</h2>
+                    
+                    <div className="flex-1 overflow-y-auto pr-2 space-y-4 text-sm text-gray-300 leading-relaxed scrollbar-hide">
+                        <div className="p-4 bg-white/5 rounded-xl border border-white/10">
+                            <p className="font-bold text-[#FFD700] mb-2">1. ACEITAÇÃO DOS TERMOS E CONDIÇÕES</p>
+                            <p>Ao acessar, instalar ou utilizar o aplicativo Vibrato Digital, o usuário ("Usuário") declara ter lido, compreendido e aceitado integralmente estes Termos de Serviço. Caso não concorde com qualquer disposição aqui estabelecida, o Usuário deve interromper imediatamente o uso do software e proceder com a desinstalação.</p>
+                        </div>
+
+                        <p><strong>2. ELEGIBILIDADE:</strong> O serviço é destinado a indivíduos com plena capacidade civil. Ao utilizar o Vibrato Digital, o Usuário garante que possui pelo menos 18 anos de idade ou que possui autorização expressa de seus responsáveis legais.</p>
+
+                        <p><strong>3. NATUREZA DO SERVIÇO:</strong> O Vibrato Digital é uma ferramenta tecnológica independente desenvolvida para auxílio individual de músicos. NÃO possui vínculo oficial com a Congregação Cristã no Brasil (CCB).</p>
+
+                        <p><strong>4. LIMITAÇÃO DE RESPONSABILIDADE:</strong> O Vibrato Digital não garante a precisão de quaisquer informações. O uso da ferramenta é de risco exclusivo do Usuário.</p>
+
+                        <p><strong>5. PROPRIEDADE INTELECTUAL:</strong> Todo o conteúdo do Vibrato Digital é de propriedade exclusiva do desenvolvedor e está protegido pelas leis de direitos autorais.</p>
+
+                        <p><strong>6. PRIVACIDADE (LGPD):</strong> O tratamento de dados pessoais será realizado em estrita observância à Lei Geral de Proteção de Dados (Lei nº 13.709/2018).</p>
+
+                        <div className="p-4 bg-[#FFD700]/10 rounded-xl border-2 border-[#FFD700] shadow-[0_0_15px_rgba(255,215,0,0.2)]">
+                            <p className="font-bold text-[#FFD700] mb-2">7. NATUREZA TÉCNICA E RESPONSABILIDADE (COPYRIGHT)</p>
+                            <p className="text-white"><strong>Inexistência de Hospedagem:</strong> A Vibrato Tech Solutions declara que NÃO fornece, NÃO hospeda, NÃO transmite e NÃO disponibiliza em seus servidores quaisquer arquivos protegidos por direitos autorais. O Usuário é o único e exclusivo responsável pela procedência legal e pelo carregamento de arquivos.</p>
+                        </div>
+
+                        <p><strong>8. SEGURANÇA (COFRE E 2FA):</strong> O Usuário reconhece que a função "Cofre" utiliza criptografia de ponta a ponta. A perda da senha resultará na perda IRREVERSÍVEL de todos os dados.</p>
+
+                        <p><strong>9. BIOMETRIA:</strong> A Vibrato Tech Solutions NÃO coleta, NÃO armazena e NÃO processa dados biométricos em seus servidores.</p>
+
+                        <p><strong>10. DISPONIBILIDADE (SLA):</strong> O serviço é fornecido "como está". Não há garantia de que o serviço será ininterrupto.</p>
+
+                        <p><strong>11. CÓDIGO DE CONDUTA:</strong> O Vibrato Digital deve ser utilizado estritamente como ferramenta de auxílio musical e produtividade.</p>
+
+                        <p><strong>12. ATUALIZAÇÕES:</strong> A Vibrato Tech Solutions poderá lançar atualizações que modifiquem ou removam funcionalidades.</p>
+
+                        <p><strong>13. COMUNICAÇÃO:</strong> Toda comunicação oficial será feita exclusivamente por meio do próprio aplicativo ou pelo e-mail cadastrado.</p>
+
+                        <p><strong>14. TRATAMENTO DE DADOS:</strong> O tratamento de dados fundamenta-se no consentimento do Usuário e na execução do contrato de licença.</p>
+
+                        <p><strong>15. DIREITOS DO TITULAR:</strong> O Usuário possui o direito de acessar, corrigir ou excluir seus dados a qualquer momento.</p>
+
+                        <p><strong>16. CRIPTOGRAFIA LOCAL:</strong> As chaves de decodificação são geradas e armazenadas unicamente no hardware do Usuário.</p>
+
+                        <p><strong>17. RADAR E PROXIMIDADE:</strong> Ao ativar esta função, o Usuário concorda em tornar seu perfil visível para outros usuários próximos.</p>
+
+                        <p><strong>18. MODIFICAÇÕES UNILATERAIS:</strong> A Vibrato Tech Solutions reserva-se o direito de alterar qualquer cláusula para adequação a novas leis.</p>
+
+                        <p><strong>19. RESPONSABILIDADE FINANCEIRA:</strong> Em nenhuma hipótese a responsabilidade agregada excederá o valor total pago pelo Usuário nos últimos 6 meses.</p>
+
+                        <p><strong>20. LICENÇA DE USO:</strong> O Usuário recebe uma licença pessoal, revogável, não exclusiva e intransferível.</p>
+
+                        <p><strong>21. DMCA:</strong> A Vibrato Tech Solutions atua apenas como fornecedora de ferramentas de visualização e organização.</p>
+
+                        <p><strong>22. RESCISÃO:</strong> A Vibrato Tech Solutions reserva-se o direito de encerrar o acesso do Usuário por violação dos Termos.</p>
+
+                        <p><strong>23. PAGAMENTOS:</strong> Reembolsos serão processados conforme as regras das lojas de aplicativos.</p>
+
+                        <p><strong>24. INDEPENDÊNCIA:</strong> Se qualquer disposição for considerada inválida, as disposições restantes permanecerão em pleno vigor.</p>
+
+                        <p><strong>25. FORO:</strong> As partes elegem o Foro da Comarca de São Paulo/SP para dirimir qualquer controvérsia.</p>
                     </div>
-                    <button 
-                        onClick={onClose} 
-                        className={`w-full py-4 font-bold rounded-xl shadow-lg hover:scale-[1.02] active:scale-95 transition-all ${isMandatory 
-                            ? "bg-gradient-to-r from-[var(--accent-color)] to-purple-600 text-white border-0" 
-                            : "bg-transparent text-white border border-white/20 hover:bg-white/10"}`}
-                    >
-                        {isMandatory ? "LI, COMPREENDO E ACEITO" : "FECHAR"}
-                    </button>
-                    <p className="text-[10px] text-center mt-4 opacity-40 text-white">Vibrato Digital • Compliance & Security</p>
+
+                    <div className="mt-6 flex flex-col gap-3">
+                        <button 
+                            onClick={onAccept} 
+                            className="w-full py-4 bg-[#FFD700] text-black font-montserrat font-bold rounded-full shadow-[0_5px_15px_rgba(255,215,0,0.3)] active:scale-95 transition-all uppercase tracking-wider"
+                        >
+                            CONCORDO
+                        </button>
+                        <button 
+                            onClick={onDeny} 
+                            className="w-full py-3 bg-transparent text-red-500 font-montserrat font-bold rounded-full border-2 border-red-500/50 hover:bg-red-500/10 active:scale-95 transition-all uppercase tracking-wider text-xs"
+                        >
+                            NÃO CONCORDO
+                        </button>
+                    </div>
+                </motion.div>
+            </div>
+        );
+
+        const AccessDeniedScreen = () => (
+            <div className="fixed inset-0 z-[300] bg-black flex items-center justify-center p-8 text-center font-montserrat">
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+                    <span className="material-symbols-rounded text-red-500 text-8xl mb-6">block</span>
+                    <h1 className="text-3xl font-bold text-white mb-4">ACESSO NEGADO</h1>
+                    <p className="text-gray-400 mb-8 leading-relaxed">
+                        Para utilizar o ecossistema Vibrato Digital, é obrigatório aceitar os Termos de Serviço e Compliance Jurídico.
+                    </p>
+                    <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-2xl">
+                        <p className="text-red-500 font-bold text-sm uppercase tracking-widest">Instrução de Desinstalação</p>
+                        <p className="text-white text-xs mt-2">Por favor, remova este aplicativo do seu dispositivo agora.</p>
+                    </div>
+                    <button onClick={() => window.location.reload()} className="mt-8 text-gray-500 text-xs underline">Tentar novamente</button>
                 </motion.div>
             </div>
         );
@@ -829,7 +918,7 @@
             ];
 
             return (
-                <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[400px] bg-[var(--card-bg)] border-t border-white/10 flex justify-around items-center p-2 z-50">
+                <div className="fixed bottom-0 w-full h-20 bg-[var(--bg-color)]/90 backdrop-blur-lg border-t border-white/5 flex justify-around items-center z-50 pb-2 transition-colors duration-500">
                     {navItems.map(item => (
                         <button key={item.id} onClick={() => navigate(item.id)} className={`flex flex-col items-center p-2 transition-all duration-300 ${screen === item.id ? 'scale-110' : 'opacity-50 hover:opacity-80'}`}>
                             <span className={`material-symbols-rounded mb-1 text-2xl ${screen === item.id ? 'icon-glow text-[var(--accent-color)]' : 'text-[var(--text-primary)]'}`}>{item.icon}</span>
@@ -841,7 +930,11 @@
         };
 
         const SettingsScreen = () => {
-            const { userProfile, updateProfile, navigate, installApp, currentThemeId, setCurrentThemeId, fontSize, setFontSize, resetData } = useContext(AppContext);
+            const { 
+                userProfile, updateProfile, navigate, installApp, 
+                currentThemeId, setCurrentThemeId, fontSize, setFontSize, 
+                resetData, exportBackup, importBackup 
+            } = useContext(AppContext);
             
             // State for local editing before save
             const [formData, setFormData] = useState({...userProfile});
@@ -982,6 +1075,28 @@
                             <button onClick={() => navigate('about')} className="w-full py-3 rounded-xl bg-[var(--accent-color)]/10 text-[var(--accent-color)] text-sm font-bold flex items-center justify-center gap-2 mb-4 hover:bg-[var(--accent-color)]/20 transition-colors border border-[var(--accent-color)]/20">
                                 <span className="material-symbols-rounded">info</span> Sobre o Aplicativo
                             </button>
+
+                            {/* Backup Section */}
+                            <div className="pt-6 border-t border-white/5 mb-6">
+                                <h3 className="text-sm font-bold text-[var(--text-primary)] mb-4 ml-2">Backup de Segurança</h3>
+                                
+                                <button 
+                                    onClick={exportBackup}
+                                    className="w-full py-3 rounded-xl bg-blue-600/20 text-blue-400 text-sm font-bold flex items-center justify-center gap-2 mb-4 hover:bg-blue-600/30 transition-colors border border-blue-600/30"
+                                >
+                                    <span className="material-symbols-rounded">download</span> GERAR BACKUP DO OPERADOR
+                                </button>
+
+                                <label className="w-full py-3 rounded-xl bg-purple-600/20 text-purple-400 text-sm font-bold flex items-center justify-center gap-2 mb-4 hover:bg-purple-600/30 transition-colors border border-purple-600/30 cursor-pointer">
+                                    <span className="material-symbols-rounded">upload</span> CARREGAR BACKUP
+                                    <input 
+                                        type="file" 
+                                        accept=".json,.txt" 
+                                        className="hidden" 
+                                        onChange={(e) => e.target.files[0] && importBackup(e.target.files[0])} 
+                                    />
+                                </label>
+                            </div>
                             
                             <button onClick={installApp} className="w-full py-3 rounded-xl bg-white/5 text-white/70 text-sm font-bold flex items-center justify-center gap-2 mb-4 hover:bg-white/10">
                                 <span className="material-symbols-rounded">install_mobile</span> Instalar App
@@ -1168,10 +1283,11 @@
         };
 
         const Main = () => {
-            const { screen, termsAccepted, acceptTerms } = useContext(AppContext);
+            const { screen, termsAccepted, acceptTerms, denyTerms, accessDenied } = useContext(AppContext);
             return (
                 <>
-                    {!termsAccepted && <TermsModal onClose={acceptTerms} isMandatory={true} />}
+                    {accessDenied && <AccessDeniedScreen />}
+                    {!termsAccepted && !accessDenied && <TermsModal onAccept={acceptTerms} onDeny={denyTerms} />}
                     {screen === 'welcome' ? <WelcomeScreen /> : (
                         <div className="h-screen w-full overflow-hidden relative selection:bg-[var(--accent-color)] selection:text-black">
                             {screen !== 'welcome' && screen !== 'settings' && screen !== 'about' && <TopBar />}
