@@ -6,10 +6,10 @@ Abaixo estão as implementações e melhorias realizadas pela **Vibrato Tech Sol
 
 ## 🛡️ Segurança e Compliance (GRC)
 
-* [cite_start]**Trava Jurídica Obrigatória:** Implementação de Modal de Consentimento para os **Termos de Serviço**[cite: 1, 22]. [cite_start]O acesso só é liberado após o aceite explícito do usuário[cite: 1, 3].
-* [cite_start]**Isenção de Responsabilidade (Copyright):** Configuração de cláusula técnica confirmando que o app é apenas um visualizador e **NÃO** hospeda conteúdos protegidos[cite: 22, 23].
-* [cite_start]**Conformidade LGPD:** Adição de funções para transparência de dados e o direito ao esquecimento (botão de excluir conta)[cite: 18, 19, 56].
-* [cite_start]**Criptografia Local:** Ativação do módulo **Cofre** com chaves irrecuperáveis armazenadas apenas no dispositivo do usuário[cite: 28, 59, 60].
+* [cite_start] **Trava Jurídica Obrigatória:** Implementação de Modal de Consentimento para os **Termos de Serviço**[cite: 1, 22]. [cite_start]O acesso só é liberado após o aceite explícito do usuário[cite: 1, 3].
+* [cite_start] **Isenção de Responsabilidade (Copyright):** Configuração de cláusula técnica confirmando que o app é apenas um visualizador e **NÃO** hospeda conteúdos protegidos[cite: 22, 23].
+* [cite_start] **Conformidade LGPD:** Adição de funções para transparência de dados e o direito ao esquecimento (botão de excluir conta)[cite: 18, 19, 56].
+* [cite_start] **Criptografia Local:** Ativação do módulo **Cofre** com chaves irrecuperáveis armazenadas apenas no dispositivo do usuário[cite: 28, 59, 60].
 
 ---
 
