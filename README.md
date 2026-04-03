@@ -3,9 +3,11 @@
 
 Este é um projeto autoral desenvolvido para prover uma interface digital segura, rápida e resiliente para músicos. Focado em **UX (User Experience)** e **Integridade de Dados**.
 
+---
+
 ## 🔗 Acesso Direto (Live Demo)
 Clique no link abaixo para testar a aplicação em tempo real:
-👉 **[https://natan731-lab.github.io/vibrato-digital-app/](https://natan731-lab.github.io/vibrato-digital-app/)**
+👉 **[Vibrato Hinario Virtual](https://natan731-lab.github.io/vibrato-digital-app/)**
 
 ---
 
@@ -19,6 +21,8 @@ Como entusiasta de **Segurança da Informação (ISC² CC)**, este app foi const
 * **Disponibilidade:** Cache inteligente para funcionamento offline.
 * **Integridade:** Estrutura de dados validada para garantir a fidelidade dos hinários.
 * **Privacidade:** Zero coleta de dados sensíveis (Privacy by Design).
+
+---
 
 ## 🚀 Tecnologias Utilizadas
 * **React.js / Next.js** (Alta performance)
@@ -38,10 +42,10 @@ Como entusiasta de **Segurança da Informação (ISC² CC)**, este app foi const
 
 📞 **Conecte-se:**
 
-👤 **Natan Dias Corrêa** 🔗 [LinkedIn](https://www.linkedin.com/in/natan-correa-sec) | 📧 [E-mail Profissional](mailto:natandias735@gmail.com)
+👤 **Natan Dias Corrêa** 🔗 [LinkedIn](https://www.linkedin.com/in/natan-correa-sec) | 📧 [natandias735@gmail.com](mailto:natandias735@gmail.com)
 🏛️ **Laboratório Vibrato Tech Solutions**
 
 ---
 
 ### 🖼️ Banner do Projeto
-![Banner do linkeadin ](https://github.com/user-attachments/assets/7f5e808d-92f4-4e87-a247-76315a4da0e7)
+![Banner do LinkedIn](https://github.com/user-attachments/assets/7f5e808d-92f4-4e87-a247-76315a)
