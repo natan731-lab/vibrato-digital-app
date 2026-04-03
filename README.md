@@ -64,8 +64,7 @@ Está buscando um profissional com visão de desenvolvimento seguro e governanç
 [natan731-lab.github.io](https://natan731-lab.github.io/)
 
 ---
-
 ### 🖼️ Banner do Projeto
-![Banner do LinkedIn](https://github.com/user-attachments/assets/7f5e808d-92f4-4e87-a247-76315a)
+<img width="100%" alt="banner-vibrato" src="https://github.com/user-attachments/assets/0a129892-e10f-4c5c-8533-cb381e0ee505" />
 
 </div>
