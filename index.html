@@ -255,6 +255,7 @@
             const [fontSize, setFontSize] = useState(22);
             const [termsAccepted, setTermsAccepted] = useState(() => localStorage.getItem('vibrato_terms_accepted') === 'true');
             const [accessDenied, setAccessDenied] = useState(false);
+            const [isAdmin, setIsAdmin] = useState(() => localStorage.getItem('vibrato_admin_mode') === 'true');
 
             // Player State
             const [playerState, setPlayerState] = useState({ isPlaying: false, hymn: null });
@@ -366,12 +367,20 @@
             };
 
             const resetData = () => {
-                if(confirm("Deseja resetar todas as configurações e dados locais?")) {
-                    localStorage.removeItem('vibrato_profile_v32');
-                    localStorage.removeItem('vibrato_settings_v32');
-                    localStorage.removeItem('vibrato_favorites_v32');
-                    localStorage.removeItem('termos_aceitos');
+                if(confirm("PROTOCOLO DE SEGURANÇA: Deseja realizar a limpeza total do sistema? Isso apagará o cofre e todas as configurações.")) {
+                    localStorage.clear();
                     window.location.reload();
+                }
+            };
+
+            const toggleAdmin = () => {
+                const newState = !isAdmin;
+                setIsAdmin(newState);
+                localStorage.setItem('vibrato_admin_mode', newState.toString());
+                if (newState) {
+                    alert("PROTOCOLO DESENVOLVEDOR ATIVADO: Recursos de administração liberados.");
+                } else {
+                    alert("PROTOCOLO DESENVOLVEDOR DESATIVADO.");
                 }
             };
 
@@ -427,7 +436,8 @@
                     userProfile, login, updateProfile,
                     resetData, termsAccepted, acceptTerms, denyTerms, accessDenied, installApp,
                     playerState, playHymn, togglePlay, closePlayer,
-                    exportBackup, importBackup
+                    exportBackup, importBackup,
+                    isAdmin, toggleAdmin
                 }}>
                     {children}
                 </AppContext.Provider>
@@ -933,7 +943,7 @@
             const { 
                 userProfile, updateProfile, navigate, installApp, 
                 currentThemeId, setCurrentThemeId, fontSize, setFontSize, 
-                resetData, exportBackup, importBackup 
+                resetData, exportBackup, importBackup, isAdmin
             } = useContext(AppContext);
             
             // State for local editing before save
@@ -1076,35 +1086,39 @@
                                 <span className="material-symbols-rounded">info</span> Sobre o Aplicativo
                             </button>
 
-                            {/* Backup Section */}
-                            <div className="pt-6 border-t border-white/5 mb-6">
-                                <h3 className="text-sm font-bold text-[var(--text-primary)] mb-4 ml-2">Backup de Segurança</h3>
-                                
-                                <button 
-                                    onClick={exportBackup}
-                                    className="w-full py-3 rounded-xl bg-blue-600/20 text-blue-400 text-sm font-bold flex items-center justify-center gap-2 mb-4 hover:bg-blue-600/30 transition-colors border border-blue-600/30"
-                                >
-                                    <span className="material-symbols-rounded">download</span> GERAR BACKUP DO OPERADOR
-                                </button>
+                            {isAdmin && (
+                                <>
+                                    {/* Backup Section */}
+                                    <div className="pt-6 border-t border-white/5 mb-6">
+                                        <h3 className="text-sm font-bold text-[var(--text-primary)] mb-4 ml-2">Backup de Segurança</h3>
+                                        
+                                        <button 
+                                            onClick={exportBackup}
+                                            className="w-full py-3 rounded-xl bg-blue-600/20 text-blue-400 text-sm font-bold flex items-center justify-center gap-2 mb-4 hover:bg-blue-600/30 transition-colors border border-blue-600/30"
+                                        >
+                                            <span className="material-symbols-rounded">download</span> GERAR BACKUP DO OPERADOR
+                                        </button>
 
-                                <label className="w-full py-3 rounded-xl bg-purple-600/20 text-purple-400 text-sm font-bold flex items-center justify-center gap-2 mb-4 hover:bg-purple-600/30 transition-colors border border-purple-600/30 cursor-pointer">
-                                    <span className="material-symbols-rounded">upload</span> CARREGAR BACKUP
-                                    <input 
-                                        type="file" 
-                                        accept=".json,.txt" 
-                                        className="hidden" 
-                                        onChange={(e) => e.target.files[0] && importBackup(e.target.files[0])} 
-                                    />
-                                </label>
-                            </div>
-                            
-                            <button onClick={installApp} className="w-full py-3 rounded-xl bg-white/5 text-white/70 text-sm font-bold flex items-center justify-center gap-2 mb-4 hover:bg-white/10">
-                                <span className="material-symbols-rounded">install_mobile</span> Instalar App
-                            </button>
-                            
-                            <button onClick={resetData} className="w-full py-3 rounded-xl border border-red-500/30 text-red-500/70 text-sm font-bold hover:bg-red-500/10">
-                                Resetar Tudo
-                            </button>
+                                        <label className="w-full py-3 rounded-xl bg-purple-600/20 text-purple-400 text-sm font-bold flex items-center justify-center gap-2 mb-4 hover:bg-purple-600/30 transition-colors border border-purple-600/30 cursor-pointer">
+                                            <span className="material-symbols-rounded">upload</span> CARREGAR BACKUP
+                                            <input 
+                                                type="file" 
+                                                accept=".json,.txt" 
+                                                className="hidden" 
+                                                onChange={(e) => e.target.files[0] && importBackup(e.target.files[0])} 
+                                            />
+                                        </label>
+                                    </div>
+                                    
+                                    <button onClick={installApp} className="w-full py-3 rounded-xl bg-white/5 text-white/70 text-sm font-bold flex items-center justify-center gap-2 mb-4 hover:bg-white/10">
+                                        <span className="material-symbols-rounded">install_mobile</span> Instalar App
+                                    </button>
+                                    
+                                    <button onClick={resetData} className="w-full py-3 rounded-xl border border-red-500/30 text-red-500/70 text-sm font-bold hover:bg-red-500/10">
+                                        Resetar Tudo
+                                    </button>
+                                </>
+                            )}
                         </div>
 
                         <div className="h-8"></div>
@@ -1124,7 +1138,17 @@
         };
 
         const AboutScreen = () => {
-            const { navigate } = useContext(AppContext);
+            const { navigate, toggleAdmin } = useContext(AppContext);
+            const [clickCount, setClickCount] = useState(0);
+
+            const handlePhotoClick = () => {
+                const newCount = clickCount + 1;
+                setClickCount(newCount);
+                if (newCount >= 7) {
+                    toggleAdmin();
+                    setClickCount(0);
+                }
+            };
 
             return (
                 <motion.div initial={{opacity:0, x:50}} animate={{opacity:1, x:0}} exit={{opacity:0, x:-50}} className="h-full bg-[var(--bg-color)] relative overflow-y-auto">
@@ -1138,7 +1162,8 @@
                     <div className="px-6 pb-24 text-center">
                         <motion.div 
                             initial={{scale:0, opacity:0}} animate={{scale:1, opacity:1}} transition={{type:"spring", duration:0.8}}
-                            className="w-32 h-32 rounded-full mx-auto mb-6 p-1 bg-gradient-to-tr from-[#FF8C42] to-[#FF4D4D] shadow-[0_0_30px_rgba(255,140,66,0.4)]"
+                            onClick={handlePhotoClick}
+                            className="w-32 h-32 rounded-full mx-auto mb-6 p-1 bg-gradient-to-tr from-[#FF8C42] to-[#FF4D4D] shadow-[0_0_30px_rgba(255,140,66,0.4)] cursor-pointer active:scale-95 transition-transform"
                         >
                             <div className="w-full h-full rounded-full bg-[#1E1E1E] flex items-center justify-center overflow-hidden border-4 border-[#121212]">
                                 <span className="text-5xl font-bold text-white">N</span>
